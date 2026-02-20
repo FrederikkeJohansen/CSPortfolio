@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import FeaturedProjects from "@/components/FeaturedProjects";
 import Hero from "@/components/Hero";
 import CourseFilter from "@/components/CourseFilter";
+import ProjectGrid from "@/components/ProjectGrid";
 
 export default async function Home() {
   // Fetch projects with related data
@@ -27,6 +28,7 @@ export default async function Home() {
         <FeaturedProjects />
         <Hero />
         <CourseFilter />
+        <ProjectGrid />
       </main>
     </div>
   );

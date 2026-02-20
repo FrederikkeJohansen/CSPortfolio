@@ -42,9 +42,9 @@ export default async function Home() {
                     className="w-full h-48 object-cover rounded-lg mb-4"
                   />
                 )}
-                <h2 className="text-xl font-semibold mb-2">{project.title}</h2>
+                <h2 className="text-xl font-bold mb-2">{project.title}</h2>
                 <p className="text-sm text-zinc-600 mb-2">{project.courses?.name} • {project.year}</p>
-                <p className="text-zinc-700 mb-3">{project.description}</p>
+                <p className="text-zinc-700 font-light mb-3">{project.description}</p>
                 <p className="text-sm text-zinc-600">By {project.student_creators}</p>
                 <p className="text-sm text-zinc-600">Video: {project.video_url}</p>
 

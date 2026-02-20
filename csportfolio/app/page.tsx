@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
+import FeaturedProjects from "@/components/FeaturedProjects";
 
 export default async function Home() {
   // Fetch projects with related data
@@ -21,7 +22,7 @@ export default async function Home() {
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       <Navbar />
       <main className="p-8">
-        <h1 className="text-4xl text-center">Welcome to My CS Portfolio</h1>
+        <FeaturedProjects />
       </main>
     </div>
   );

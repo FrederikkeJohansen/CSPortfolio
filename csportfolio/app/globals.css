@@ -2,6 +2,30 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Use AU font bold*/
+@font-face {
+  font-family: 'AUPassata';
+  src: url('/fonts/AUPassata_Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* Use AU font regular*/
+@font-face {
+  font-family: 'AUPassata';
+  src: url('/fonts/AUPassata_Rg.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Use AU font light*/
+@font-face {
+  font-family: 'AUPassata';
+  src: url('/fonts/AUPassata_Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -121,6 +145,7 @@
     @apply border-border outline-ring/50;
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
     @apply bg-background text-foreground;

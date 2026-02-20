@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
 import FeaturedProjects from "@/components/FeaturedProjects";
+import Hero from "@/components/Hero";
 
 export default async function Home() {
   // Fetch projects with related data
@@ -23,6 +24,7 @@ export default async function Home() {
       <Navbar />
       <main className="p-8">
         <FeaturedProjects />
+        <Hero />
       </main>
     </div>
   );

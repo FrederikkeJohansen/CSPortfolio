@@ -45,7 +45,17 @@ export default async function Home() {
                 <h2 className="text-xl font-semibold mb-2">{project.title}</h2>
                 <p className="text-sm text-zinc-600 mb-2">{project.courses?.name} • {project.year}</p>
                 <p className="text-zinc-700 mb-3">{project.description}</p>
-                <p className="text-sm text-zinc-600">By {project.student_name}</p>
+                <p className="text-sm text-zinc-600">By {project.student_creators}</p>
+                <p className="text-sm text-zinc-600">Video: {project.video_url}</p>
+
+                {/* Featured Badge */}
+                {project.featured && (
+                  <div className="mt-3">
+                    <span className="text-xs bg-blue-500 text-white px-3 py-1 rounded-full font-semibold">
+                      ⭐ Featured
+                    </span>
+                  </div>
+                )}
 
                 {project.project_filters && project.project_filters.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-3">

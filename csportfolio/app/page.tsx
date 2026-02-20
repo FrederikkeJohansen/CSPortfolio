@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { supabase } from "@/lib/supabase";
+import Navbar from "@/components/Navbar";
 
 export default async function Home() {
   // Fetch projects with related data
@@ -16,9 +16,11 @@ export default async function Home() {
     .eq('visible', true)
     .order('display_order', { ascending: true })
     .order('created_at', { ascending: false });
+
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black p-8">
-      <main className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-zinc-50 dark:bg-black">
+      <Navbar />
+      <main className="max-w-7xl mx-auto p-8">
         <h1 className="text-4xl font-bold text-black dark:text-white mb-8">
           CS Portfolio Projects
         </h1>

@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { Project } from "@/types";
 import Navbar from "@/components/Navbar";
 import FeaturedProjects from "@/components/FeaturedProjects";
 import Hero from "@/components/Hero";
@@ -11,17 +12,19 @@ export default async function Home() {
   const { data: projects, error } = await supabase
     .from('projects')
     .select(`
-      *,
-      courses(name),
-      project_images(image_url, display_order),
-      project_filters(
-        filters(type, value)
-      )
-    `)
+  id, title, description, year, video_url, poster_url,
+  featured, visible, student_creators,
+  display_order, created_at,
+  courses(name),
+  project_images(image_url, display_order),
+  project_filters(filters(type, value))
+`)
     .eq('visible', true)
     .order('display_order', { ascending: true })
     .order('created_at', { ascending: false });
-
+  if (error) {
+    console.error('Failed to fetch projects:', error)
+  }
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       <Navbar />
@@ -30,7 +33,7 @@ export default async function Home() {
         <Hero />
         <CourseFilter />
         <AdvancedFilter />
-        <ProjectGrid />
+        <ProjectGrid projects={projects ?? []} />
       </main>
     </div>
   );

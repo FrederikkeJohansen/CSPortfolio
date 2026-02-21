@@ -33,7 +33,7 @@ export default async function Home() {
         <Hero />
         <CourseFilter />
         <AdvancedFilter />
-        <ProjectGrid projects={projects ?? []} />
+        <ProjectGrid projects={(projects as unknown as Project[]) ?? []} />
       </main>
     </div>
   );

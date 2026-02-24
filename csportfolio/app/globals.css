@@ -29,6 +29,7 @@
 }
 
 @theme inline {
+  --breakpoint-laptop: 1000px;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: 'AUPassata', system-ui, sans-serif;

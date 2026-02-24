@@ -26,7 +26,7 @@ export type Project = {
   created_at: string
   display_order: number
   // joined relations:
-  courses: { name: string } | null
+  courses: { id: string; name: string } | null
   project_images: ProjectImage[]
   project_filters: { filters: Filter[] }[]
 }

@@ -26,7 +26,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
             {/* Content */}
             <div className="p-4 flex flex-col gap-1 flex-1 overflow-hidden">
-                <p className="text-xs font-semibold tracking-wide uppercase text-indigo-400 dark:text-indigo-300">
+                <p className="text-xs font-semibold tracking-wide uppercase text-indigo-500 dark:text-indigo-300">
                     {courseName && <span>{courseName}</span>}
                     {courseName && project.year && <span> • </span>}
                     {project.year && <span>{project.year}</span>}

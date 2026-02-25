@@ -14,7 +14,7 @@ export default function CourseFilter({ courses, selectedCourses, onToggle }: Pro
         <>
             {/* Mobile Dropdown */}
             <div className="block md:hidden">
-                <CourseFilterMobile courses={courses} selectedCourses={selectedCourses} onToggle={onToggle} />
+                <CourseFilterMobile courses={courses} selectedCourses={selectedCourses} onToggle={onToggle}/>
             </div>
             {/* Desktop: Button grid */}
             <div className="hidden md:flex flex-wrap gap-2 justify-center w-full 2xl:w-2/3 mx-auto my-12">

@@ -7,6 +7,7 @@ import CourseFilter from "@/components/CourseFilter";
 import AdvancedFilter from "@/components/AdvancedFilter";
 import ProjectGrid from "@/components/ProjectGrid";
 import ProjectsSelection from "@/components/ProjectsSelection";
+import Footer from "@/components/Footer";
 
 export default async function Home() {
   // Fetch courses for filter options
@@ -39,6 +40,7 @@ export default async function Home() {
           courses={courses ?? []}
         />
       </main>
+      <Footer />
     </div>
   );
 }

@@ -9,6 +9,11 @@ export type Filter = {
   value: string
 }
 
+export type ImageEntry = {
+  file: File
+  preview: string
+}
+
 export type UploadFormData = {
   title: string
   description: string
@@ -18,6 +23,8 @@ export type UploadFormData = {
   student_creators: string
   course_id: string
   selected_filters: string[]
+  image_files: ImageEntry[]
+  primary_image_index: number
   student_name: string
   student_email: string
   student_number: string

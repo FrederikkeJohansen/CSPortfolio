@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
-import { Course, Filter, UploadFormData } from "@/types"
+import { Course, Filter, ImageEntry, UploadFormData } from "@/types"
+import ImageManagerModal from "./ImageManagerModal"
 
 type Props = {
     open: boolean
@@ -19,6 +20,8 @@ const initialFormData: UploadFormData = {
     student_creators: "",
     course_id: "",
     selected_filters: [],
+    image_files: [],
+    primary_image_index: 0,
     student_name: "",
     student_email: "",
     student_number: "",
@@ -39,6 +42,7 @@ export default function UploadModal({ open, onClose }: Props) {
     const [success, setSuccess] = useState(false)
     const [isDragging, setIsDragging] = useState(false)
     const [posterLoading, setPosterLoading] = useState(false)
+    const [imageModalOpen, setImageModalOpen] = useState(false)
     const courseRef = useRef<HTMLDivElement>(null)
     const courseListRef = useRef<HTMLUListElement>(null)
     const posterInputRef = useRef<HTMLInputElement>(null)
@@ -80,11 +84,15 @@ export default function UploadModal({ open, onClose }: Props) {
     useEffect(() => {
         if (!open) {
             setStep(1)
-            setFormData(initialFormData)
+            setFormData(prev => {
+                prev.image_files.forEach(img => URL.revokeObjectURL(img.preview))
+                return initialFormData
+            })
             setCourseSearch("")
             setHighlightedIndex(-1)
             setError("")
             setSuccess(false)
+            setImageModalOpen(false)
         }
     }, [open])
 
@@ -212,6 +220,37 @@ export default function UploadModal({ open, onClose }: Props) {
                     .insert(filterRows)
 
                 if (filterError) throw new Error("Failed to link filters: " + filterError.message)
+            }
+
+            // 5. Upload images
+            if (formData.image_files.length > 0 && project) {
+                const imageRows = []
+                for (let i = 0; i < formData.image_files.length; i++) {
+                    const img = formData.image_files[i]
+                    const fileExt = img.file.name.split(".").pop()
+                    const fileName = `${project.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
+                    const { error: imgUploadError } = await supabase.storage
+                        .from("project-images")
+                        .upload(fileName, img.file)
+
+                    if (imgUploadError) throw new Error("Failed to upload image: " + imgUploadError.message)
+
+                    const { data: imgUrlData } = supabase.storage.from("project-images").getPublicUrl(fileName)
+
+                    // Primary image gets display_order 0, rest follow
+                    const order = i === formData.primary_image_index ? 0 : (i < formData.primary_image_index ? i + 1 : i)
+                    imageRows.push({
+                        project_id: project.id,
+                        image_url: imgUrlData.publicUrl,
+                        display_order: order,
+                    })
+                }
+
+                const { error: imgInsertError } = await supabase
+                    .from("project_images")
+                    .insert(imageRows)
+
+                if (imgInsertError) throw new Error("Failed to save image records: " + imgInsertError.message)
             }
 
             setSuccess(true)
@@ -432,6 +471,81 @@ export default function UploadModal({ open, onClose }: Props) {
                                     />
                                 </div>
 
+                                {/* --- Images section --- */}
+                                <div className="flex flex-col gap-1">
+                                    <label className={labelClass}>Images <span className="text-red-500 text-base">*</span></label>
+                                    <div className={cn("flex items-center gap-4", formData.image_files.length === 0 && "bg-white dark:bg-zinc-800")}>
+                                        {/* Thumbnail previews (max 4 visible) */}
+                                        {formData.image_files.slice(0, 4).map((img, i) => (
+                                            <button
+                                                key={img.preview}
+                                                type="button"
+                                                onClick={() => setImageModalOpen(true)}
+                                                className="relative w-20 h-20 rounded-md overflow-hidden shrink-0 group"
+                                            >
+                                                <img src={img.preview} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
+                                                {i === formData.primary_image_index && (
+                                                    <span className="absolute top-1 left-1 w-5 h-5 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs">★</span>
+                                                )}
+                                                {/* Overflow indicator on 4th thumbnail */}
+                                                {i === 3 && formData.image_files.length > 4 && (
+                                                    <span className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-3xl font-medium">
+                                                        +{formData.image_files.length - 4}
+                                                    </span>
+                                                )}
+                                            </button>
+                                        ))}
+
+                                        {/* Add / manage button */}
+                                        <button
+                                            type="button"
+                                            onClick={() => setImageModalOpen(true)}
+                                            className={cn(
+                                                "group rounded-md border-2 border-dashed border-zinc-300 dark:border-zinc-600 flex flex-col items-center justify-center gap-1 hover:border-indigo-400 transition-colors cursor-pointer",
+                                                formData.image_files.length === 0 ? "w-full py-8" : "w-20 h-20 shrink-0"
+                                            )}
+                                        >
+                                            <svg
+                                                className="w-10 h-10 stroke-zinc-400 dark:stroke-zinc-500 group-hover:stroke-indigo-400 transition-colors"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                strokeWidth={1.5}
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <path d="M3 9V5a2 2 0 0 1 2-2h9M21 9v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9" />
+                                                <path d="M5 16l4-4 3 3 3-3 5 5" />
+                                                <circle cx="9" cy="7" r="1.5" />
+                                                <path d="M18.5 2.5v5" />
+                                                <path d="M16 5h5" />
+                                            </svg>
+                                            <span className="text-sm text-zinc-400 dark:text-zinc-500 group-hover:text-indigo-400 transition-colors">
+                                                {formData.image_files.length === 0 ? "Add images" : ""}
+                                            </span>
+                                        </button>
+                                    </div>
+
+                                    {formData.image_files.length > 0 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setImageModalOpen(true)}
+                                            className="text-xs text-indigo-500 dark:text-indigo-400 hover:underline mt-1 self-start"
+                                        >
+                                            Manage images ({formData.image_files.length})
+                                        </button>
+                                    )}
+                                </div>
+
+                                <ImageManagerModal
+                                    open={imageModalOpen}
+                                    onClose={() => setImageModalOpen(false)}
+                                    images={formData.image_files}
+                                    primaryIndex={formData.primary_image_index}
+                                    onImagesChange={(images: ImageEntry[]) => update("image_files", images)}
+                                    onPrimaryChange={(index: number) => update("primary_image_index", index)}
+                                />
+
                                 <div className="flex flex-col gap-1">
                                     <label className={labelClass}>Poster</label>
 
@@ -454,10 +568,10 @@ export default function UploadModal({ open, onClose }: Props) {
                                             }
                                         }}
                                         className={cn(
-                                            "border-2 border-dashed rounded-md py-8 flex flex-col items-center justify-center gap-1 bg-white dark:bg-zinc-800 transition-colors cursor-default",
+                                            "group border-2 border-dashed rounded-md py-8 flex flex-col items-center justify-center gap-1 bg-white dark:bg-zinc-800 transition-colors",
                                             isDragging
                                                 ? "border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20"
-                                                : "border-zinc-300 dark:border-zinc-600"
+                                                : "border-zinc-300 dark:border-zinc-600 hover:border-indigo-400"
                                         )}
                                     >
                                         {posterLoading ? (
@@ -467,14 +581,15 @@ export default function UploadModal({ open, onClose }: Props) {
                                             </svg>
                                         ) : (
                                             <>
-                                                <p className="text-sm text-zinc-400 dark:text-zinc-500">Drag and drop here (only image or PDF, max 10 MB)</p>
                                                 <button
                                                     type="button"
                                                     onClick={() => posterInputRef.current?.click()}
-                                                    className="text-sm text-indigo-500 dark:text-indigo-400 font-semibold hover:underline"
+                                                    className="text-sm text-indigo-500 dark:text-indigo-400 hover:underline cursor-pointer"
                                                 >
-                                                    Browse
+                                                    Browse files
                                                 </button>
+                                                <p className="text-sm text-zinc-400 dark:text-zinc-500 group-hover:text-indigo-400 transition-colors">Or drag and drop your poster here (only image or PDF, max 10 MB)</p>
+
                                             </>
                                         )}
                                         <input

@@ -33,10 +33,15 @@ export default function UploadModal({ open, onClose }: Props) {
     const [filters, setFilters] = useState<Filter[]>([])
     const [courseSearch, setCourseSearch] = useState("")
     const [courseDropdownOpen, setCourseDropdownOpen] = useState(false)
+    const [highlightedIndex, setHighlightedIndex] = useState(-1)
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState("")
     const [success, setSuccess] = useState(false)
+    const [isDragging, setIsDragging] = useState(false)
+    const [posterLoading, setPosterLoading] = useState(false)
     const courseRef = useRef<HTMLDivElement>(null)
+    const courseListRef = useRef<HTMLUListElement>(null)
+    const posterInputRef = useRef<HTMLInputElement>(null)
 
     // Fetch courses and filters when modal opens
     useEffect(() => {
@@ -64,12 +69,20 @@ export default function UploadModal({ open, onClose }: Props) {
         return () => document.removeEventListener("pointerdown", handleClick)
     }, [courseDropdownOpen])
 
+    // Scroll highlighted item into view
+    useEffect(() => {
+        if (highlightedIndex < 0 || !courseListRef.current) return
+        const item = courseListRef.current.children[highlightedIndex] as HTMLElement
+        item?.scrollIntoView({ block: "nearest" })
+    }, [highlightedIndex])
+
     // Reset form when modal closes
     useEffect(() => {
         if (!open) {
             setStep(1)
             setFormData(initialFormData)
             setCourseSearch("")
+            setHighlightedIndex(-1)
             setError("")
             setSuccess(false)
         }
@@ -100,20 +113,21 @@ export default function UploadModal({ open, onClose }: Props) {
 
     // --- Validation ---
     const validateStep1 = () => {
-        if (!formData.title.trim()) return "Title is required"
-        if (!formData.description.trim()) return "Description is required"
+        if (!formData.title.trim()) return "Title is missing"
+        if (!formData.description.trim()) return "Description is missing"
         const year = parseInt(formData.year)
-        if (!formData.year || isNaN(year) || year < 1990 || year > 2300) return "Year must be between 1990 and 2300"
+        if (!formData.year || isNaN(year) || year < 1900 || year > 2200) return "Year must be valid"
         if (!formData.course_id) return "Please select a course"
         return null
     }
 
     const validateStep2 = () => {
-        if (!formData.student_name.trim()) return "Student name is required"
-        if (!formData.student_email.trim() || !formData.student_email.includes("@")) return "Valid email is required"
+        if (!formData.student_name.trim()) return "Student name is missing"
+        const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
+        if (!emailRegex.test(formData.student_email.trim())) return "Valid email is required"
         const num = formData.student_number.trim()
         const validNumber = /^\d{9}$/.test(num) || /^[Aa][Uu]\d{6}$/.test(num)
-        if (!validNumber) return "Student number must be 9 digits or AU followed by 6 digits"
+        if (!validNumber) return "Student number must be ######### or AU######"
         return null
     }
 
@@ -233,309 +247,446 @@ export default function UploadModal({ open, onClose }: Props) {
 
     // --- Label helper ---
     const labelClass = "text-xs font-semibold uppercase tracking-wide text-black dark:text-zinc-300"
-    const inputClass = "border border-gray-300 dark:border-zinc-600 rounded-md px-3 py-2 text-sm bg-white dark:bg-zinc-800 dark:text-white"
+    const inputClass = " border border-zinc-300 dark:border-zinc-600 rounded-sm tracking-wide px-3 py-2 text-sm bg-white dark:bg-zinc-800 dark:text-white"
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-            <div className="relative bg-indigo-50 dark:bg-zinc-900 rounded-2xl p-8 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-                <button onClick={onClose} className="absolute top-4 right-4 text-zinc-400 hover:text-black dark:hover:text-white cursor-pointer text-lg">✕</button>
+            <div className="absolute inset-0 bg-black/60" />
+            <div className="relative bg-zinc-50 dark:bg-zinc-900 rounded-md w-2/3 mx-4 max-h-[90vh] flex flex-col">
 
-                {/* Step indicator */}
-                <div className="flex items-center gap-2 mb-6">
-                    {[1, 2, 3].map(s => (
-                        <div key={s} className="flex items-center gap-2">
-                            <div className={cn(
-                                "size-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors",
-                                s <= step
-                                    ? "bg-indigo-500 text-white"
-                                    : "bg-gray-200 dark:bg-zinc-700 text-gray-500 dark:text-zinc-400"
-                            )}>
-                                {s}
+                {/* Sticky header */}
+                <div className="sticky z-10 bg-zinc-50 dark:bg-zinc-900 rounded-t-md">
+                    <button onClick={onClose} className="absolute right-4 text-zinc-800 hover:text-black dark:hover:text-white cursor-pointer text-lg">✕</button>
+                    <h2 className="pt-4 text-center text-xl text-indigo-500 font-bold tracking-wide uppercase mb-3">Upload Project</h2>
+                    <hr className="border-zinc-300 dark:border-zinc-700" />
+
+                    {/* Step segments */}
+                    <div className="flex justify-center items-center tracking-wide ">
+                        {[
+                            { n: 1, label: "Project details" },
+                            { n: 2, label: "Student info" },
+                            { n: 3, label: "Submit" },
+                        ].map(({ n, label }) => (
+                            <div
+                                key={n}
+                                className={cn(
+                                    "flex-1 flex items-center justify-center gap-2 px-3 py-2.5 text-sm transition-colors",
+                                    n === 1 && "rounded-l-md",
+                                    n === 3 ? "rounded-r-md" : "border-r border-zinc-300 dark:border-zinc-700",
+                                    n === step
+                                        ? " text-indigo-500 font-bold"
+                                        : n < step
+                                            ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-400"
+                                            : " text-zinc-400 dark:text-zinc-500"
+                                )}
+                            >
+                                <span className={cn(
+                                    "size-5 rounded-sm flex items-center justify-center text-sm shrink-0",
+                                    n === step ? "bg-white/20" : "bg-transparent"
+                                )}>
+                                    {n}
+                                </span>
+                                {label}
                             </div>
-                            {s < 3 && <div className={cn("w-8 h-0.5", s < step ? "bg-indigo-500" : "bg-gray-200 dark:bg-zinc-700")} />}
-                        </div>
-                    ))}
-                    <span className="ml-2 text-xs text-gray-500 dark:text-zinc-400">
-                        {step === 1 ? "Project details" : step === 2 ? "Student info" : "Submit"}
-                    </span>
+                        ))}
+                    </div>
+                    <hr className="border-zinc-300 dark:border-zinc-700" />
                 </div>
 
-                {/* Error message */}
-                {error && (
-                    <div className="mb-4 px-3 py-2 rounded-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
-                        {error}
-                    </div>
-                )}
+                {/* Scrollable content */}
+                <div className="overflow-y-auto px-8 pb-8 flex-1">
 
-                {/* --- Step 1: Project Details --- */}
-                {step === 1 && (
-                    <div className="flex flex-col gap-4">
-                        <h2 className="text-lg font-bold dark:text-white">Project details</h2>
-
-                        <div className="flex flex-col gap-1">
-                            <label className={labelClass}>Title *</label>
-                            <input
-                                type="text"
-                                placeholder="Project title"
-                                value={formData.title}
-                                onChange={e => update("title", e.target.value)}
-                                className={inputClass}
-                            />
+                    {/* Error message */}
+                    {error && (
+                        <div className="mb-4 px-3 py-2 rounded-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
+                            {error}
                         </div>
+                    )}
 
-                        <div className="flex flex-col gap-1">
-                            <label className={labelClass}>Description *</label>
-                            <textarea
-                                rows={3}
-                                placeholder="Short description of the project"
-                                value={formData.description}
-                                onChange={e => update("description", e.target.value)}
-                                className={cn(inputClass, "resize-none")}
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                            <label className={labelClass}>Year *</label>
-                            <input
-                                type="number"
-                                placeholder="2024"
-                                min={1990}
-                                max={2300}
-                                value={formData.year}
-                                onChange={e => update("year", e.target.value)}
-                                className={inputClass}
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                            <label className={labelClass}>Video URL</label>
-                            <input
-                                type="url"
-                                placeholder="https://example.com/video"
-                                value={formData.video_url}
-                                onChange={e => update("video_url", e.target.value)}
-                                className={inputClass}
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                            <label className={labelClass}>Poster image</label>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={e => update("poster_file", e.target.files?.[0] ?? null)}
-                                className="text-sm dark:text-zinc-300"
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                            <label className={labelClass}>Creators</label>
-                            <input
-                                type="text"
-                                placeholder="Name of creator(s) or group"
-                                value={formData.student_creators}
-                                onChange={e => update("student_creators", e.target.value)}
-                                className={inputClass}
-                            />
-                        </div>
-
-                        {/* Course search dropdown */}
-                        <div className="flex flex-col gap-1" ref={courseRef}>
-                            <label className={labelClass}>Course *</label>
-                            {selectedCourse ? (
-                                <div className="flex items-center gap-2">
-                                    <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-sm font-medium">
-                                        {selectedCourse.name}
-                                        <button
-                                            type="button"
-                                            onClick={() => { update("course_id", ""); setCourseSearch("") }}
-                                            className="ml-1 text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-200"
-                                        >
-                                            ✕
-                                        </button>
-                                    </span>
-                                </div>
-                            ) : (
-                                <div className="relative">
+                    {/* --- Step 1: Project Details --- */}
+                    {step === 1 && (
+                        <div className="">
+                            <h2 className="text-lg font-bold text-black dark:text-white pt-4">Project details</h2>
+                            <div className="flex flex-col gap-6 ">
+                                <div className="flex flex-col gap-1">
+                                    <label className={labelClass}>Title <span className="text-red-500 text-base">*</span></label>
                                     <input
                                         type="text"
-                                        placeholder="Search for a course..."
-                                        value={courseSearch}
-                                        onChange={e => { setCourseSearch(e.target.value); setCourseDropdownOpen(true) }}
-                                        onFocus={() => setCourseDropdownOpen(true)}
-                                        className={inputClass + " w-full"}
+                                        placeholder="Project title"
+                                        value={formData.title}
+                                        onChange={e => update("title", e.target.value)}
+                                        className={inputClass}
                                     />
-                                    {courseDropdownOpen && filteredCourses.length > 0 && (
-                                        <ul className="absolute top-full left-0 right-0 z-10 mt-1 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-600 rounded-md shadow-lg max-h-40 overflow-y-auto">
-                                            {filteredCourses.map(c => (
-                                                <li key={c.id}>
-                                                    <button
-                                                        type="button"
-                                                        className="w-full text-left px-3 py-2 text-sm hover:bg-indigo-50 dark:hover:bg-zinc-700 dark:text-white"
-                                                        onClick={() => {
-                                                            update("course_id", c.id)
-                                                            setCourseSearch(c.name)
-                                                            setCourseDropdownOpen(false)
-                                                        }}
-                                                    >
-                                                        {c.name}
-                                                    </button>
-                                                </li>
-                                            ))}
-                                        </ul>
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                    <label className={labelClass}>Description <span className="text-red-500 text-base">*</span></label>
+                                    <textarea
+                                        rows={8}
+                                        placeholder="Description of the project"
+                                        value={formData.description}
+                                        onChange={e => update("description", e.target.value)}
+                                        className={cn(inputClass, "resize-none")}
+                                    />
+                                </div>
+
+                                {/* Course search dropdown */}
+                                <div className="flex flex-col gap-1" ref={courseRef}>
+                                    <label className={labelClass}>Course <span className="text-red-500 text-base">*</span></label>
+                                    {selectedCourse ? (
+                                        <div className="flex items-center gap-2">
+                                            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full font-medium border-2 border-indigo-500 dark:border-indigo-400  dark:text-white text-sm">
+                                                {selectedCourse.name}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => { update("course_id", ""); setCourseSearch("") }}
+                                                    className="ml-1 text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-200"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder="Course name"
+                                                value={courseSearch}
+                                                onChange={e => {
+                                                    setCourseSearch(e.target.value)
+                                                    setCourseDropdownOpen(true)
+                                                    setHighlightedIndex(-1)
+                                                }}
+                                                onFocus={() => setCourseDropdownOpen(true)}
+                                                onKeyDown={e => {
+                                                    if (!courseDropdownOpen || filteredCourses.length === 0) return
+                                                    if (e.key === "ArrowDown") {
+                                                        e.preventDefault()
+                                                        setHighlightedIndex(i => Math.min(i + 1, filteredCourses.length - 1))
+                                                    } else if (e.key === "ArrowUp") {
+                                                        e.preventDefault()
+                                                        setHighlightedIndex(i => Math.max(i - 1, 0))
+                                                    } else if (e.key === "Enter" && highlightedIndex >= 0) {
+                                                        e.preventDefault()
+                                                        const course = filteredCourses[highlightedIndex]
+                                                        update("course_id", course.id)
+                                                        setCourseSearch(course.name)
+                                                        setCourseDropdownOpen(false)
+                                                        setHighlightedIndex(-1)
+                                                    } else if (e.key === "Escape") {
+                                                        setCourseDropdownOpen(false)
+                                                        setHighlightedIndex(-1)
+                                                    }
+                                                }}
+                                                className={inputClass + " w-full"}
+                                            />
+                                            {courseDropdownOpen && filteredCourses.length > 0 && (
+                                                <ul ref={courseListRef} className="absolute top-full left-0 right-0 z-10 mt-1 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-600 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                                                    {filteredCourses.map((c, i) => (
+                                                        <li key={c.id}>
+                                                            <button
+                                                                type="button"
+                                                                className={cn(
+                                                                    "w-full text-left px-3 py-2 text-sm dark:text-white",
+                                                                    i === highlightedIndex
+                                                                        ? "bg-indigo-50 dark:bg-zinc-700"
+                                                                        : "hover:bg-indigo-50 dark:hover:bg-zinc-700"
+                                                                )}
+                                                                onClick={() => {
+                                                                    update("course_id", c.id)
+                                                                    setCourseSearch(c.name)
+                                                                    setCourseDropdownOpen(false)
+                                                                    setHighlightedIndex(-1)
+                                                                }}
+                                                            >
+                                                                {c.name}
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
-                            )}
-                        </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className={labelClass}>Year <span className="text-red-500 text-base">*</span></label>
+                                    <input
+                                        type="number"
+                                        placeholder={String(new Date().getFullYear())}
+                                        min={1990}
+                                        max={2300}
+                                        value={formData.year}
+                                        onChange={e => update("year", e.target.value)}
+                                        className={inputClass}
+                                    />
+                                </div>
 
-                        {/* Filters grouped by type */}
-                        {Object.keys(filtersByType).length > 0 && (
-                            <div className="flex flex-col gap-3">
-                                <label className={labelClass}>Filters</label>
-                                {Object.entries(filtersByType).map(([type, typeFilters]) => (
-                                    <div key={type}>
-                                        <p className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1">{type}</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {typeFilters.map(f => {
-                                                const isChecked = formData.selected_filters.includes(f.id)
-                                                return (
-                                                    <label
-                                                        key={f.id}
-                                                        className={cn(
-                                                            "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs cursor-pointer border transition-colors",
-                                                            isChecked
-                                                                ? "bg-indigo-500 text-white border-indigo-500"
-                                                                : "bg-white dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 border-gray-300 dark:border-zinc-600 hover:border-indigo-400"
-                                                        )}
-                                                    >
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={isChecked}
-                                                            onChange={() => toggleFilter(f.id)}
-                                                            className="sr-only"
-                                                        />
-                                                        {f.value}
-                                                    </label>
-                                                )
-                                            })}
-                                        </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className={labelClass}>Video URL</label>
+                                    <input
+                                        type="url"
+                                        placeholder="https://example.com/video"
+                                        value={formData.video_url}
+                                        onChange={e => update("video_url", e.target.value)}
+                                        className={inputClass}
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                    <label className={labelClass}>Poster</label>
+
+                                    {/* Drop zone */}
+                                    <div
+                                        onDragOver={e => { e.preventDefault(); setIsDragging(true) }}
+                                        onDragLeave={() => setIsDragging(false)}
+                                        onDrop={e => {
+                                            e.preventDefault()
+                                            setIsDragging(false)
+                                            const file = e.dataTransfer.files[0]
+                                            const isValid = file && (file.type.startsWith("image/") || file.type === "application/pdf")
+                                            if (isValid && file.size > 10 * 1024 * 1024) {
+                                                setError("File must be under 10 MB")
+                                            } else if (isValid) {
+                                                setError("")
+                                                setPosterLoading(true)
+                                                update("poster_file", file)
+                                                setTimeout(() => setPosterLoading(false), 600)
+                                            }
+                                        }}
+                                        className={cn(
+                                            "border-2 border-dashed rounded-md py-8 flex flex-col items-center justify-center gap-1 bg-white dark:bg-zinc-800 transition-colors cursor-default",
+                                            isDragging
+                                                ? "border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20"
+                                                : "border-zinc-300 dark:border-zinc-600"
+                                        )}
+                                    >
+                                        {posterLoading ? (
+                                            <svg className="animate-spin h-6 w-6 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                            </svg>
+                                        ) : (
+                                            <>
+                                                <p className="text-sm text-zinc-400 dark:text-zinc-500">Drag and drop here (only image or PDF, max 10 MB)</p>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => posterInputRef.current?.click()}
+                                                    className="text-sm text-indigo-500 dark:text-indigo-400 font-semibold hover:underline"
+                                                >
+                                                    Browse
+                                                </button>
+                                            </>
+                                        )}
+                                        <input
+                                            ref={posterInputRef}
+                                            type="file"
+                                            accept="image/*,application/pdf"
+                                            className="hidden"
+                                            onChange={e => {
+                                                const file = e.target.files?.[0]
+                                                if (file) {
+                                                    if (file.size > 10 * 1024 * 1024) {
+                                                        setError("File must be under 10 MB")
+                                                        e.target.value = ""
+                                                        return
+                                                    }
+                                                    setError("")
+                                                    setPosterLoading(true)
+                                                    update("poster_file", file)
+                                                    setTimeout(() => setPosterLoading(false), 600)
+                                                }
+                                            }}
+                                        />
                                     </div>
-                                ))}
+
+                                    {/* Selected file */}
+                                    {!posterLoading && formData.poster_file && (
+                                        <div className="flex items-center justify-between px-3 py-2 rounded-md bg-zinc-100 dark:bg-zinc-800 text-sm text-zinc-700 dark:text-zinc-300">
+                                            <span className="truncate">{formData.poster_file.name}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => update("poster_file", null)}
+                                                className="ml-2 text-zinc-400 hover:text-red-500 dark:hover:text-red-400 shrink-0 cursor-pointer"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                    <label className={labelClass}>Creators</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Name of creator(s) or group"
+                                        value={formData.student_creators}
+                                        onChange={e => update("student_creators", e.target.value)}
+                                        className={inputClass}
+                                    />
+                                </div>
+
+
+                                {/* Filters grouped by type */}
+                                {Object.keys(filtersByType).length > 0 && (
+                                    <div className="flex flex-col gap-3">
+                                        <label className={labelClass}>Filters</label>
+                                        {Object.entries(filtersByType).map(([type, typeFilters]) => (
+                                            <div key={type}>
+                                                <p className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1">{type}</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {typeFilters.map(f => {
+                                                        const isChecked = formData.selected_filters.includes(f.id)
+                                                        return (
+                                                            <label
+                                                                key={f.id}
+                                                                className={cn(
+                                                                    "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs cursor-pointer border transition-colors",
+                                                                    isChecked
+                                                                        ? "bg-indigo-500 text-white border-indigo-500"
+                                                                        : "bg-white dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 border-gray-300 dark:border-zinc-600 hover:border-indigo-400"
+                                                                )}
+                                                            >
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={isChecked}
+                                                                    onChange={() => toggleFilter(f.id)}
+                                                                    className="sr-only"
+                                                                />
+                                                                {f.value}
+                                                            </label>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
+                        </div>
+                    )}
+
+                    {/* --- Step 2: Student Info --- */}
+                    {step === 2 && (
+                        <div className="flex flex-col gap-4">
+                            <h2 className="text-lg font-bold dark:text-white">Student information </h2>
+                            <p className="text-sm text-zinc-600 dark:text-zinc-400 -mt-2">This information is for admin purposes only and will not be displayed publicly.</p>
+
+                            <div className="flex flex-col gap-1">
+                                <label className={labelClass}>Name <span className="text-red-500 text-base">*</span></label>
+                                <input
+                                    type="text"
+                                    placeholder="Your full name"
+                                    value={formData.student_name}
+                                    onChange={e => update("student_name", e.target.value)}
+                                    className={inputClass}
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-1">
+                                <label className={labelClass}>Email <span className="text-red-500 text-base">*</span></label>
+                                <input
+                                    type="email"
+                                    placeholder="your@email.com"
+                                    value={formData.student_email}
+                                    onChange={e => update("student_email", e.target.value)}
+                                    className={inputClass}
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-1">
+                                <label className={labelClass}>Student number <span className="text-red-500 text-base">*</span></label>
+                                <input
+                                    type="text"
+                                    placeholder="######### or AU######"
+                                    value={formData.student_number}
+                                    onChange={e => update("student_number", e.target.value)}
+                                    className={inputClass}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* --- Step 3: Consent & Passphrase --- */}
+                    {step === 3 && (
+                        <div className="flex flex-col gap-4">
+                            <h2 className="text-lg font-bold dark:text-white">Consent & submit</h2>
+
+                            <div className="flex items-start gap-3 p-4 rounded-lg bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700">
+                                <input
+                                    type="checkbox"
+                                    id="consent"
+                                    checked={formData.consent}
+                                    onChange={e => update("consent", e.target.checked)}
+                                    className="mt-1 accent-indigo-500"
+                                />
+                                <label htmlFor="consent" className="text-sm text-gray-700 dark:text-zinc-300 leading-relaxed">
+                                    I confirm that this submission does not contain sensitive personal data or confidential information. I consent to the storage and public display of the project on the CS Portfolio platform and acknowledge my responsibility for ensuring compliance with applicable data protection regulations, including the GDPR.
+
+                                    <p className=" mt-2 italic">In practice, this means that your submission should not include identifiable images of individuals, personal information (such as names, emails, phone numbers), or any confidential material. If you are unsure whether your project contains personal data, please contact the platform administrators before submitting.</p>
+                                    <p className="mt-2">
+                                        <a
+                                            href="https://www.datatilsynet.dk/regler-og-vejledning/gdpr-univers-for-smaa-virksomheder/grundlaeggende-om-gdpr"
+                                            className="text-black dark:text-white hover:text-indigo-600 underline"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            Read about data handling & privacy policy
+                                        </a>
+                                    </p>
+                                </label>
+                            </div>
+
+                            <div className="flex flex-col gap-1">
+                                <label className={labelClass}>Passphrase <span className="text-red-500 text-base">*</span></label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter the passphrase"
+                                    value={formData.passphrase}
+                                    onChange={e => update("passphrase", e.target.value)}
+                                    className={inputClass}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Navigation buttons */}
+                    <div className="flex justify-between mt-6">
+                        {step > 1 ? (
+                            <button
+                                type="button"
+                                onClick={() => { setStep(prev => prev - 1); setError("") }}
+                                className="px-5 py-2 rounded-full text-sm font-medium text-gray-600 dark:text-zinc-300 border border-gray-300 dark:border-zinc-600 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+                            >
+                                Back
+                            </button>
+                        ) : <div />}
+
+                        {step < 3 ? (
+                            <button
+                                type="button"
+                                onClick={handleNext}
+                                className="px-5 py-2 rounded-full text-sm font-semibold bg-indigo-500 text-white hover:bg-indigo-600 transition-colors"
+                            >
+                                Next
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={submitting || !formData.consent || !formData.passphrase.trim()}
+                                className={cn(
+                                    "px-5 py-2 rounded-full text-sm font-semibold transition-colors",
+                                    formData.consent && formData.passphrase.trim() && !submitting
+                                        ? "bg-indigo-500 text-white hover:bg-indigo-600"
+                                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                )}
+                            >
+                                {submitting ? "Submitting..." : "Submit project"}
+                            </button>
                         )}
                     </div>
-                )}
-
-                {/* --- Step 2: Student Info --- */}
-                {step === 2 && (
-                    <div className="flex flex-col gap-4">
-                        <h2 className="text-lg font-bold dark:text-white">Student information</h2>
-                        <p className="text-xs text-gray-500 dark:text-zinc-400 -mt-2">This information is for admin purposes only and will not be displayed publicly.</p>
-
-                        <div className="flex flex-col gap-1">
-                            <label className={labelClass}>Name *</label>
-                            <input
-                                type="text"
-                                placeholder="Your full name"
-                                value={formData.student_name}
-                                onChange={e => update("student_name", e.target.value)}
-                                className={inputClass}
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                            <label className={labelClass}>Email *</label>
-                            <input
-                                type="email"
-                                placeholder="your@email.com"
-                                value={formData.student_email}
-                                onChange={e => update("student_email", e.target.value)}
-                                className={inputClass}
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                            <label className={labelClass}>Student number *</label>
-                            <input
-                                type="text"
-                                placeholder="123456789 or AU123456"
-                                value={formData.student_number}
-                                onChange={e => update("student_number", e.target.value)}
-                                className={inputClass}
-                            />
-                        </div>
-                    </div>
-                )}
-
-                {/* --- Step 3: Consent & Passphrase --- */}
-                {step === 3 && (
-                    <div className="flex flex-col gap-4">
-                        <h2 className="text-lg font-bold dark:text-white">Consent & submit</h2>
-
-                        <div className="flex items-start gap-3 p-4 rounded-lg bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700">
-                            <input
-                                type="checkbox"
-                                id="consent"
-                                checked={formData.consent}
-                                onChange={e => update("consent", e.target.checked)}
-                                className="mt-1 accent-indigo-500"
-                            />
-                            <label htmlFor="consent" className="text-sm text-gray-700 dark:text-zinc-300 leading-relaxed">
-                                I confirm that this project does not contain sensitive personal information and I consent to it being displayed on the CS Portfolio platform in accordance with GDPR regulations.
-                            </label>
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                            <label className={labelClass}>Passphrase *</label>
-                            <input
-                                type="password"
-                                placeholder="Enter the course passphrase"
-                                value={formData.passphrase}
-                                onChange={e => update("passphrase", e.target.value)}
-                                className={inputClass}
-                            />
-                        </div>
-                    </div>
-                )}
-
-                {/* Navigation buttons */}
-                <div className="flex justify-between mt-6">
-                    {step > 1 ? (
-                        <button
-                            type="button"
-                            onClick={() => { setStep(prev => prev - 1); setError("") }}
-                            className="px-5 py-2 rounded-full text-sm font-medium text-gray-600 dark:text-zinc-300 border border-gray-300 dark:border-zinc-600 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
-                        >
-                            Back
-                        </button>
-                    ) : <div />}
-
-                    {step < 3 ? (
-                        <button
-                            type="button"
-                            onClick={handleNext}
-                            className="px-5 py-2 rounded-full text-sm font-semibold bg-indigo-500 text-white hover:bg-indigo-600 transition-colors"
-                        >
-                            Next
-                        </button>
-                    ) : (
-                        <button
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={submitting || !formData.consent}
-                            className={cn(
-                                "px-5 py-2 rounded-full text-sm font-semibold transition-colors",
-                                formData.consent && !submitting
-                                    ? "bg-indigo-500 text-white hover:bg-indigo-600"
-                                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                            )}
-                        >
-                            {submitting ? "Submitting..." : "Submit project"}
-                        </button>
-                    )}
-                </div>
-            </div>
+                </div>{/* end scrollable content */}
+            </div>{/* end modal panel */}
         </div>
     )
 }

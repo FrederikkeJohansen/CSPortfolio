@@ -50,7 +50,7 @@ export default function ImageManagerModal({
         }
 
         if (fileArray.length > remaining) {
-            setError(`Only ${remaining} more image${remaining === 1 ? "" : "s"} allowed`)
+            setError(`Only ${MAX_IMAGES} images is allowed`)
         }
 
         if (validFiles.length > 0) {

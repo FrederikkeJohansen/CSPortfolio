@@ -83,7 +83,7 @@ export default function ImageManagerModal({
                     <h3 className="text-lg font-bold text-black dark:text-white">Project images</h3>
                     <button
                         onClick={onClose}
-                        className="text-zinc-800 hover:text-black dark:text-zinc-400 dark:hover:text-white cursor-pointer text-lg"
+                        className="text-zinc-400 hover:text-black dark:text-zinc-400 dark:hover:text-white cursor-pointer text-lg"
                     >
                         ✕
                     </button>

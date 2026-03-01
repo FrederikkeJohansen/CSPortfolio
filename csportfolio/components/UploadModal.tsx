@@ -43,9 +43,11 @@ export default function UploadModal({ open, onClose }: Props) {
     const [isDragging, setIsDragging] = useState(false)
     const [posterLoading, setPosterLoading] = useState(false)
     const [imageModalOpen, setImageModalOpen] = useState(false)
+    const [invalidFields, setInvalidFields] = useState<Set<string>>(new Set())
     const courseRef = useRef<HTMLDivElement>(null)
     const courseListRef = useRef<HTMLUListElement>(null)
     const posterInputRef = useRef<HTMLInputElement>(null)
+    const errorRef = useRef<HTMLDivElement>(null)
 
     // Fetch courses and filters when modal opens
     useEffect(() => {
@@ -80,6 +82,11 @@ export default function UploadModal({ open, onClose }: Props) {
         item?.scrollIntoView({ block: "nearest" })
     }, [highlightedIndex])
 
+    // Scroll to error when it appears
+    useEffect(() => {
+        if (error) errorRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+    }, [error])
+
     // Reset form when modal closes
     useEffect(() => {
         if (!open) {
@@ -93,6 +100,7 @@ export default function UploadModal({ open, onClose }: Props) {
             setError("")
             setSuccess(false)
             setImageModalOpen(false)
+            setInvalidFields(new Set())
         }
     }, [open])
 
@@ -120,34 +128,48 @@ export default function UploadModal({ open, onClose }: Props) {
     }, {})
 
     // --- Validation ---
-    const validateStep1 = () => {
-        if (!formData.title.trim()) return "Title is missing"
-        if (!formData.description.trim()) return "Description is missing"
-        const year = parseInt(formData.year)
-        if (!formData.year || isNaN(year) || year < 1900 || year > 2200) return "Year must be valid"
-        if (!formData.course_id) return "Please select a course"
-        return null
+    const formatErrorList = (parts: string[]) => {
+        if (parts.length === 1) return `Please enter ${parts[0]}`
+        if (parts.length === 2) return `Please enter ${parts[0]} and ${parts[1]}`
+        return `Please enter ${parts.slice(0, -1).join(", ")}, and ${parts[parts.length - 1]}`
     }
 
-    const validateStep2 = () => {
-        if (!formData.student_name.trim()) return "Student name is missing"
+    const validateStep1 = (): { error: string | null; fields: Set<string> } => {
+        const fields = new Set<string>()
+        const parts: string[] = []
+        if (!formData.title.trim()) { fields.add("title"); parts.push("title") }
+        if (!formData.description.trim()) { fields.add("description"); parts.push("description") }
+        const year = parseInt(formData.year)
+        if (!formData.year || isNaN(year) || year < 1900 || year > 2200) { fields.add("year"); parts.push("a valid year") }
+        if (!formData.course_id) { fields.add("course_id"); parts.push("a course") }
+        if (formData.image_files.length === 0) { fields.add("image_files"); parts.push("at least one image") }
+        if (parts.length === 0) return { error: null, fields: new Set() }
+        return { error: formatErrorList(parts), fields }
+    }
+
+    const validateStep2 = (): { error: string | null; fields: Set<string> } => {
+        const fields = new Set<string>()
+        const parts: string[] = []
+        if (!formData.student_name.trim()) { fields.add("student_name"); parts.push("name") }
         const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
-        if (!emailRegex.test(formData.student_email.trim())) return "Valid email is required"
+        if (!emailRegex.test(formData.student_email.trim())) { fields.add("student_email"); parts.push("a valid email") }
         const num = formData.student_number.trim()
         const validNumber = /^\d{9}$/.test(num) || /^[Aa][Uu]\d{6}$/.test(num)
-        if (!validNumber) return "Student number must be ######### or AU######"
-        return null
+        if (!validNumber) { fields.add("student_number"); parts.push("a valid student number") }
+        if (parts.length === 0) return { error: null, fields: new Set() }
+        return { error: formatErrorList(parts), fields }
     }
 
     const handleNext = () => {
         setError("")
+        setInvalidFields(new Set())
         if (step === 1) {
-            const err = validateStep1()
-            if (err) { setError(err); return }
+            const { error: err, fields } = validateStep1()
+            if (err) { setError(err); setInvalidFields(fields); return }
         }
         if (step === 2) {
-            const err = validateStep2()
-            if (err) { setError(err); return }
+            const { error: err, fields } = validateStep2()
+            if (err) { setError(err); setInvalidFields(fields); return }
         }
         setStep(prev => prev + 1)
     }
@@ -295,7 +317,7 @@ export default function UploadModal({ open, onClose }: Props) {
 
                 {/* Sticky header */}
                 <div className="sticky z-10 bg-zinc-50 dark:bg-zinc-900 rounded-t-md">
-                    <button onClick={onClose} className="absolute right-4 text-zinc-800 hover:text-black dark:hover:text-white cursor-pointer text-lg">✕</button>
+                    <button onClick={onClose} className="absolute right-4 text-zinc-400 hover:text-black dark:hover:text-white cursor-pointer text-lg">✕</button>
                     <h2 className="pt-4 text-center text-xl text-indigo-500 font-bold tracking-wide uppercase mb-3">Upload Project</h2>
                     <hr className="border-zinc-300 dark:border-zinc-700" />
 
@@ -337,7 +359,7 @@ export default function UploadModal({ open, onClose }: Props) {
 
                     {/* Error message */}
                     {error && (
-                        <div className="mb-4 px-3 py-2 rounded-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
+                        <div ref={errorRef} className="mt-4 px-4 py-2 rounded-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
                             {error}
                         </div>
                     )}
@@ -348,7 +370,7 @@ export default function UploadModal({ open, onClose }: Props) {
                             <h2 className="text-lg font-bold text-black dark:text-white pt-4">Project details</h2>
                             <div className="flex flex-col gap-6 ">
                                 <div className="flex flex-col gap-1">
-                                    <label className={labelClass}>Title <span className="text-red-500 text-base">*</span></label>
+                                    <label className={cn(labelClass, invalidFields.has("title") && "text-red-500")}>Title <span className="text-red-500 text-base">*</span></label>
                                     <input
                                         type="text"
                                         placeholder="Project title"
@@ -359,7 +381,7 @@ export default function UploadModal({ open, onClose }: Props) {
                                 </div>
 
                                 <div className="flex flex-col gap-1">
-                                    <label className={labelClass}>Description <span className="text-red-500 text-base">*</span></label>
+                                    <label className={cn(labelClass, invalidFields.has("description") && "text-red-500")}>Description <span className="text-red-500 text-base">*</span></label>
                                     <textarea
                                         rows={8}
                                         placeholder="Description of the project"
@@ -371,7 +393,7 @@ export default function UploadModal({ open, onClose }: Props) {
 
                                 {/* Course search dropdown */}
                                 <div className="flex flex-col gap-1" ref={courseRef}>
-                                    <label className={labelClass}>Course <span className="text-red-500 text-base">*</span></label>
+                                    <label className={cn(labelClass, invalidFields.has("course_id") && "text-red-500")}>Course <span className="text-red-500 text-base">*</span></label>
                                     {selectedCourse ? (
                                         <div className="flex items-center gap-2">
                                             <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full font-medium border-2 border-indigo-500 dark:border-indigo-400  dark:text-white text-sm">
@@ -448,7 +470,7 @@ export default function UploadModal({ open, onClose }: Props) {
                                     )}
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <label className={labelClass}>Year <span className="text-red-500 text-base">*</span></label>
+                                    <label className={cn(labelClass, invalidFields.has("year") && "text-red-500")}>Year <span className="text-red-500 text-base">*</span></label>
                                     <input
                                         type="number"
                                         placeholder={String(new Date().getFullYear())}
@@ -470,10 +492,9 @@ export default function UploadModal({ open, onClose }: Props) {
                                         className={inputClass}
                                     />
                                 </div>
-
                                 {/* --- Images section --- */}
                                 <div className="flex flex-col gap-1">
-                                    <label className={labelClass}>Images <span className="text-red-500 text-base">*</span></label>
+                                    <label className={cn(labelClass, invalidFields.has("image_files") && "text-red-500")}>Images <span className="text-red-500 text-base">*</span></label>
                                     <div className={cn("flex items-center gap-4", formData.image_files.length === 0 && "bg-white dark:bg-zinc-800")}>
                                         {/* Thumbnail previews (max 4 visible) */}
                                         {formData.image_files.slice(0, 4).map((img, i) => (
@@ -567,8 +588,9 @@ export default function UploadModal({ open, onClose }: Props) {
                                                 setTimeout(() => setPosterLoading(false), 600)
                                             }
                                         }}
+                                        onClick={() => posterInputRef.current?.click()}
                                         className={cn(
-                                            "group border-2 border-dashed rounded-md py-8 flex flex-col items-center justify-center gap-1 bg-white dark:bg-zinc-800 transition-colors",
+                                            "group border-2 border-dashed rounded-md py-8 flex flex-col items-center justify-center gap-1 bg-white dark:bg-zinc-800 transition-colors cursor-pointer",
                                             isDragging
                                                 ? "border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20"
                                                 : "border-zinc-300 dark:border-zinc-600 hover:border-indigo-400"
@@ -581,15 +603,26 @@ export default function UploadModal({ open, onClose }: Props) {
                                             </svg>
                                         ) : (
                                             <>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => posterInputRef.current?.click()}
-                                                    className="text-sm text-indigo-500 dark:text-indigo-400 hover:underline cursor-pointer"
+                                                <svg
+                                                    className="w-12 h-12 stroke-zinc-400 dark:stroke-zinc-500 group-hover:stroke-indigo-400 transition-colors"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    strokeWidth={1.5}
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
                                                 >
-                                                    Browse files
-                                                </button>
-                                                <p className="text-sm text-zinc-400 dark:text-zinc-500 group-hover:text-indigo-400 transition-colors">Or drag and drop your poster here (only image or PDF, max 10 MB)</p>
-
+                                                    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+                                                    <path d="M14 3v5h5" />
+                                                    <path d="M12 17V10" />
+                                                    <path d="M9.5 12.5L12 10l2.5 2.5" />
+                                                </svg>
+                                                <span className="text-sm text-zinc-400 dark:text-zinc-500 group-hover:text-indigo-400 transition-colors">
+                                                    Add poster or drag and drop
+                                                </span>
+                                                <span className="text-xs text-zinc-400 dark:text-zinc-500 group-hover:text-indigo-400 transition-colors">
+                                                    1 poster per project, max 10 MB, image or PDF
+                                                </span>
                                             </>
                                         )}
                                         <input
@@ -687,7 +720,7 @@ export default function UploadModal({ open, onClose }: Props) {
                             <p className="text-sm text-zinc-600 dark:text-zinc-400 -mt-2">This information is for admin purposes only and will not be displayed publicly.</p>
 
                             <div className="flex flex-col gap-1">
-                                <label className={labelClass}>Name <span className="text-red-500 text-base">*</span></label>
+                                <label className={cn(labelClass, invalidFields.has("student_name") && "text-red-500")}>Name <span className="text-red-500 text-base">*</span></label>
                                 <input
                                     type="text"
                                     placeholder="Your full name"
@@ -698,7 +731,7 @@ export default function UploadModal({ open, onClose }: Props) {
                             </div>
 
                             <div className="flex flex-col gap-1">
-                                <label className={labelClass}>Email <span className="text-red-500 text-base">*</span></label>
+                                <label className={cn(labelClass, invalidFields.has("student_email") && "text-red-500")}>Email <span className="text-red-500 text-base">*</span></label>
                                 <input
                                     type="email"
                                     placeholder="your@email.com"
@@ -709,10 +742,10 @@ export default function UploadModal({ open, onClose }: Props) {
                             </div>
 
                             <div className="flex flex-col gap-1">
-                                <label className={labelClass}>Student number <span className="text-red-500 text-base">*</span></label>
+                                <label className={cn(labelClass, invalidFields.has("student_number") && "text-red-500")}>Student number <span className="text-red-500 text-base">*</span></label>
                                 <input
                                     type="text"
-                                    placeholder="######### or AU######"
+                                    placeholder="123456789 or AU123456"
                                     value={formData.student_number}
                                     onChange={e => update("student_number", e.target.value)}
                                     className={inputClass}
@@ -780,7 +813,7 @@ export default function UploadModal({ open, onClose }: Props) {
                             <button
                                 type="button"
                                 onClick={handleNext}
-                                className="px-5 py-2 rounded-full text-sm font-semibold bg-indigo-500 text-white hover:bg-indigo-600 transition-colors"
+                                className="px-5 py-2 rounded-full text-sm font-semibold bg-indigo-500 text-white hover:bg-indigo-600 transition-colors cursor-pointer"
                             >
                                 Next
                             </button>
@@ -790,9 +823,9 @@ export default function UploadModal({ open, onClose }: Props) {
                                 onClick={handleSubmit}
                                 disabled={submitting || !formData.consent || !formData.passphrase.trim()}
                                 className={cn(
-                                    "px-5 py-2 rounded-full text-sm font-semibold transition-colors",
+                                    "px-5 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer",
                                     formData.consent && formData.passphrase.trim() && !submitting
-                                        ? "bg-indigo-500 text-white hover:bg-indigo-600"
+                                        ? "bg-indigo-500 text-white hover:bg-indigo-600 "
                                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                 )}
                             >

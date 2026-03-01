@@ -76,7 +76,7 @@ export default function ImageManagerModal({
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center">
             <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-            <div className="relative bg-zinc-50 dark:bg-zinc-900 rounded-md w-2/3 mx-4 max-h-[80vh] flex flex-col">
+            <div className="relative bg-zinc-50 dark:bg-zinc-900 rounded-md w-1/2 mx-4 max-h-[80vh] flex flex-col">
 
                 {/* Header */}
                 <div className="flex items-center justify-between px-8 py-4 border-b border-zinc-300 dark:border-zinc-700">
@@ -104,7 +104,7 @@ export default function ImageManagerModal({
                     {/* Image grid */}
                     <div
                         className={cn(
-                            "flex flex-wrap gap-4 p-4 rounded-md border-2 border-dashed transition-colors min-h-[120px]",
+                            "grid [grid-template-columns:repeat(auto-fill,96px)] justify-between gap-y-4 p-4 rounded-md border-2 border-dashed transition-colors min-h-[120px]",
                             isDragging
                                 ? "border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20"
                                 : "border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800"
@@ -188,7 +188,7 @@ export default function ImageManagerModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-8 py-2 rounded-full text-sm font-semibold bg-indigo-500 text-white hover:bg-indigo-600 transition-colors"
+                        className="px-8 py-2 rounded-full text-sm font-semibold bg-indigo-500 text-white hover:bg-indigo-600 transition-colors cursor-pointer"
                     >
                         Done
                     </button>

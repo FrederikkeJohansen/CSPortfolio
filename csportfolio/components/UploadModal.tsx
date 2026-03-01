@@ -44,6 +44,7 @@ export default function UploadModal({ open, onClose }: Props) {
     const [posterLoading, setPosterLoading] = useState(false)
     const [imageModalOpen, setImageModalOpen] = useState(false)
     const [invalidFields, setInvalidFields] = useState<Set<string>>(new Set())
+    const [openFilterTypes, setOpenFilterTypes] = useState<Set<string>>(new Set())
     const courseRef = useRef<HTMLDivElement>(null)
     const courseListRef = useRef<HTMLUListElement>(null)
     const posterInputRef = useRef<HTMLInputElement>(null)
@@ -101,6 +102,7 @@ export default function UploadModal({ open, onClose }: Props) {
             setSuccess(false)
             setImageModalOpen(false)
             setInvalidFields(new Set())
+            setOpenFilterTypes(new Set())
         }
     }, [open])
 
@@ -116,6 +118,18 @@ export default function UploadModal({ open, onClose }: Props) {
                 : [...prev.selected_filters, filterId],
         }))
     }
+
+    const toggleFilterType = (type: string) => {
+        setOpenFilterTypes(prev => {
+            const next = new Set(prev)
+            if (next.has(type)) next.delete(type)
+            else next.add(type)
+            return next
+        })
+    }
+
+    const formatFilterType = (type: string) =>
+        type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())
 
     const selectedCourse = courses.find(c => c.id === formData.course_id)
     const filteredCourses = courses.filter(c =>
@@ -183,7 +197,7 @@ export default function UploadModal({ open, onClose }: Props) {
         try {
             // 1. Validate passphrase
             const { data: passphraseMatch } = await supabase
-                .from("passphrase")
+                .from("passphrases")
                 .select("id")
                 .eq("value", formData.passphrase.trim())
                 .eq("active", true)
@@ -211,9 +225,12 @@ export default function UploadModal({ open, onClose }: Props) {
             }
 
             // 3. Insert project
-            const { data: project, error: insertError } = await supabase
+            const projectId = crypto.randomUUID()
+
+            const { error: insertError } = await supabase
                 .from("projects")
                 .insert({
+                    id: projectId,
                     title: formData.title.trim(),
                     description: formData.description.trim(),
                     year: parseInt(formData.year),
@@ -226,15 +243,13 @@ export default function UploadModal({ open, onClose }: Props) {
                     student_number: formData.student_number.trim(),
                     visible: false,
                 })
-                .select("id")
-                .single()
 
             if (insertError) throw new Error("Failed to submit project: " + insertError.message)
 
             // 4. Link filters
-            if (formData.selected_filters.length > 0 && project) {
+            if (formData.selected_filters.length > 0) {
                 const filterRows = formData.selected_filters.map(filterId => ({
-                    project_id: project.id,
+                    project_id: projectId,
                     filter_id: filterId,
                 }))
                 const { error: filterError } = await supabase
@@ -245,12 +260,12 @@ export default function UploadModal({ open, onClose }: Props) {
             }
 
             // 5. Upload images
-            if (formData.image_files.length > 0 && project) {
+            if (formData.image_files.length > 0) {
                 const imageRows = []
                 for (let i = 0; i < formData.image_files.length; i++) {
                     const img = formData.image_files[i]
                     const fileExt = img.file.name.split(".").pop()
-                    const fileName = `${project.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
+                    const fileName = `${projectId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
                     const { error: imgUploadError } = await supabase.storage
                         .from("project-images")
                         .upload(fileName, img.file)
@@ -262,7 +277,7 @@ export default function UploadModal({ open, onClose }: Props) {
                     // Primary image gets display_order 0, rest follow
                     const order = i === formData.primary_image_index ? 0 : (i < formData.primary_image_index ? i + 1 : i)
                     imageRows.push({
-                        project_id: project.id,
+                        project_id: projectId,
                         image_url: imgUrlData.publicUrl,
                         display_order: order,
                     })
@@ -551,7 +566,7 @@ export default function UploadModal({ open, onClose }: Props) {
                                         <button
                                             type="button"
                                             onClick={() => setImageModalOpen(true)}
-                                            className="text-xs text-indigo-500 dark:text-indigo-400 hover:underline mt-1 self-start"
+                                            className="text-xs text-zinc-500 dark:text-zinc-200 hover:underline mt-1 self-start cursor-pointer"
                                         >
                                             Manage images ({formData.image_files.length})
                                         </button>
@@ -676,37 +691,76 @@ export default function UploadModal({ open, onClose }: Props) {
 
                                 {/* Filters grouped by type */}
                                 {Object.keys(filtersByType).length > 0 && (
-                                    <div className="flex flex-col gap-3">
+                                    <div className="flex flex-col gap-1">
                                         <label className={labelClass}>Filters</label>
-                                        {Object.entries(filtersByType).map(([type, typeFilters]) => (
-                                            <div key={type}>
-                                                <p className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1">{type}</p>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {typeFilters.map(f => {
-                                                        const isChecked = formData.selected_filters.includes(f.id)
-                                                        return (
-                                                            <label
-                                                                key={f.id}
-                                                                className={cn(
-                                                                    "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs cursor-pointer border transition-colors",
-                                                                    isChecked
-                                                                        ? "bg-indigo-500 text-white border-indigo-500"
-                                                                        : "bg-white dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 border-gray-300 dark:border-zinc-600 hover:border-indigo-400"
-                                                                )}
+                                        <div className="flex flex-col">
+                                            {Object.entries(filtersByType).map(([type, typeFilters]) => {
+                                                const isOpen = openFilterTypes.has(type)
+                                                const selectedInType = typeFilters.filter(f => formData.selected_filters.includes(f.id))
+                                                return (
+                                                    <div key={type} className="border-b border-zinc-200 dark:border-zinc-700 last:border-b-0">
+                                                        {/* Accordion header */}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => toggleFilterType(type)}
+                                                            className="flex items-center justify-between w-full py-3 text-left"
+                                                        >
+                                                            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                                                {formatFilterType(type)}
+                                                            </span>
+                                                            <svg
+                                                                className={cn("w-4 h-4 text-zinc-400 transition-transform shrink-0 cursor-pointer", isOpen && "rotate-180")}
+                                                                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
                                                             >
-                                                                <input
-                                                                    type="checkbox"
-                                                                    checked={isChecked}
-                                                                    onChange={() => toggleFilter(f.id)}
-                                                                    className="sr-only"
-                                                                />
-                                                                {f.value}
-                                                            </label>
-                                                        )
-                                                    })}
-                                                </div>
-                                            </div>
-                                        ))}
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                                            </svg>
+                                                        </button>
+
+                                                        {/* Selected chips — visible when collapsed */}
+                                                        {!isOpen && selectedInType.length > 0 && (
+                                                            <div className="flex flex-wrap gap-2 pb-3">
+                                                                {selectedInType.map(f => (
+                                                                    <span key={f.id} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full font-medium border-2 border-indigo-500 dark:border-indigo-400 dark:text-white text-sm">
+                                                                        {f.value}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => toggleFilter(f.id)}
+                                                                            className="ml-1 text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-200 cursor-pointer"
+                                                                        >
+                                                                            ×
+                                                                        </button>
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        )}
+
+                                                        {/* Expanded options */}
+                                                        {isOpen && (
+                                                            <div className="flex flex-wrap gap-2 pb-4">
+                                                                {typeFilters.map(f => {
+                                                                    const isChecked = formData.selected_filters.includes(f.id)
+                                                                    return (
+                                                                        <button
+                                                                            key={f.id}
+                                                                            type="button"
+                                                                            onClick={() => toggleFilter(f.id)}
+                                                                            className={cn(
+                                                                                "px-3 py-1.5 rounded-full text-sm border transition-colors cursor-pointer",
+                                                                                isChecked
+                                                                                    ? "bg-indigo-500 text-white border-indigo-500"
+                                                                                    : "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border-zinc-300 dark:border-zinc-600 hover:border-indigo-400"
+                                                                            )}
+                                                                        >
+                                                                            {f.value}
+                                                                        </button>
+                                                                    )
+                                                                })}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -826,7 +880,7 @@ export default function UploadModal({ open, onClose }: Props) {
                                     "px-5 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer",
                                     formData.consent && formData.passphrase.trim() && !submitting
                                         ? "bg-indigo-500 text-white hover:bg-indigo-600 "
-                                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                        : "bg-zinc-300 text-zinc-500 cursor-not-allowed"
                                 )}
                             >
                                 {submitting ? "Submitting..." : "Submit project"}

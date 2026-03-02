@@ -4,8 +4,32 @@ export type Course = {
 }
 
 export type Filter = {
+  id: string
   type: string
   value: string
+}
+
+export type ImageEntry = {
+  file: File
+  preview: string
+}
+
+export type UploadFormData = {
+  title: string
+  description: string
+  year: string
+  video_url: string
+  poster_file: File | null
+  student_creators: string
+  course_id: string
+  selected_filters: string[]
+  image_files: ImageEntry[]
+  primary_image_index: number
+  student_name: string
+  student_email: string
+  student_number: string
+  passphrase: string
+  consent: boolean
 }
 
 export type ProjectImage = {

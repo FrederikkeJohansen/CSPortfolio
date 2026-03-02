@@ -31,18 +31,16 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                     {courseName && project.year && <span> • </span>}
                     {project.year && <span>{project.year}</span>}
                 </p>
-                <h2 className="font-bold text-xl leading-snug line-clamp-1 text-gray-900 dark:text-white">{project.title}</h2>
+                <h2 className="font-bold text-xl leading-snug line-clamp-1 text-zinc-900 dark:text-white">{project.title}</h2>
 
                 {project.description && (
-                    <p className="text-sm text-gray-700 dark:text-zinc-200 line-clamp-2 md:line-clamp-3 leading-relaxed">
+                    <p className="text-sm text-zinc-700 dark:text-zinc-200 line-clamp-2 md:line-clamp-3 leading-relaxed">
                         {project.description}
                     </p>
                 )}
-                {project.student_creators && (
-                    <p className="text-xs font-semibold text-gray-700 dark:text-zinc-200 mt-auto pt-2 truncate">
-                        Created by: {project.student_creators}
-                    </p>
-                )}
+                <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200 mt-auto pt-2 truncate">
+                    Created by: {project.student_creators ?? "Anonymous"}
+                </p>
             </div>
         </div>
     )

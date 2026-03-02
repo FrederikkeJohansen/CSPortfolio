@@ -215,12 +215,12 @@ export default function UploadModal({ open, onClose }: Props) {
                 const fileExt = formData.poster_file.name.split(".").pop()
                 const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
                 const { error: uploadError } = await supabase.storage
-                    .from("poster")
+                    .from("project-poster")
                     .upload(fileName, formData.poster_file)
 
                 if (uploadError) throw new Error("Failed to upload poster: " + uploadError.message)
 
-                const { data: urlData } = supabase.storage.from("poster").getPublicUrl(fileName)
+                const { data: urlData } = supabase.storage.from("project-poster").getPublicUrl(fileName)
                 posterUrl = urlData.publicUrl
             }
 

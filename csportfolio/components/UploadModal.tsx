@@ -49,6 +49,7 @@ export default function UploadModal({ open, onClose }: Props) {
     const courseListRef = useRef<HTMLUListElement>(null)
     const posterInputRef = useRef<HTMLInputElement>(null)
     const errorRef = useRef<HTMLDivElement>(null)
+    const [showExitConfirm, setShowExitConfirm] = useState(false)
 
     // Fetch courses and filters when modal opens
     useEffect(() => {
@@ -328,21 +329,45 @@ export default function UploadModal({ open, onClose }: Props) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/60" />
-            <div className="relative bg-zinc-50 dark:bg-zinc-800 rounded-md w-2/3 mx-4 max-h-[90vh] flex flex-col">
-
+            <div className="relative bg-zinc-50 dark:bg-zinc-800 rounded-md w-full md:w-2/3 mx-4 max-h-[90vh] flex flex-col">
+                {showExitConfirm && (
+                    <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 rounded-md">
+                        <div className="bg-zinc-50 dark:bg-zinc-800 rounded-md p-8 shadow-lg max-w-sm mx-4 text-center flex flex-col gap-4">
+                            <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                                Are you sure you want to quit? Your progress will not be saved.
+                            </p>
+                            <div className="flex gap-4 justify-center">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowExitConfirm(false)}
+                                    className="px-4 py-2 rounded-full text-sm font-semibold bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-600 cursor-pointer"
+                                >
+                                    Keep editing
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    className="px-4 py-2 rounded-full text-sm font-semibold bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                >
+                                    Yes, quit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {/* Sticky header */}
                 <div className="sticky z-10 bg-zinc-50 dark:bg-zinc-800 rounded-t-md">
-                    <button onClick={onClose} className="absolute right-4 text-zinc-400 hover:text-black dark:hover:text-white cursor-pointer text-lg">✕</button>
+                    <button onClick={() => setShowExitConfirm(true)} className="absolute right-4 text-zinc-400 hover:text-black dark:hover:text-white cursor-pointer text-lg">✕</button>
                     <h2 className="pt-4 text-center text-xl text-indigo-500 font-bold tracking-wide uppercase mb-3">Upload Project</h2>
                     <hr className="border-zinc-300 dark:border-zinc-700" />
 
                     {/* Step segments */}
                     <div className="flex justify-center items-center tracking-wide ">
                         {[
-                            { n: 1, label: "Project details" },
-                            { n: 2, label: "Student info" },
-                            { n: 3, label: "Submit" },
-                        ].map(({ n, label }) => (
+                            { n: 1, label: "Project details", shortLabel: "Details" },
+                            { n: 2, label: "Student info", shortLabel: "Student" },
+                            { n: 3, label: "Submit", shortLabel: "Submit" },
+                        ].map(({ n, label, shortLabel }) => (
                             <div
                                 key={n}
                                 className={cn(
@@ -362,7 +387,8 @@ export default function UploadModal({ open, onClose }: Props) {
                                 )}>
                                     {n}
                                 </span>
-                                {label}
+                                <span className="hidden sm:inline">{label}</span>
+                                <span className="sm:hidden">{shortLabel}</span>
                             </div>
                         ))}
                     </div>
@@ -370,7 +396,7 @@ export default function UploadModal({ open, onClose }: Props) {
                 </div>
 
                 {/* Scrollable content */}
-                <div className="overflow-y-auto px-8 pb-8 flex-1">
+                <div className="overflow-y-auto px-4 sm:px-8 pb-8 flex-1">
 
                     {/* Error message */}
                     {error && (
@@ -720,7 +746,7 @@ export default function UploadModal({ open, onClose }: Props) {
                                                         {!isOpen && selectedInType.length > 0 && (
                                                             <div className="flex flex-wrap gap-2 pb-3">
                                                                 {selectedInType.map(f => (
-                                                                    <span key={f.id} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full font-medium border-2 border-indigo-500 dark:border-indigo-400 dark:text-white text-sm">
+                                                                    <span key={f.id} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full font-medium border-2 border-indigo-500 dark:border-indigo-400 dark:text-white text-xs sm:text-sm ">
                                                                         {f.value}
                                                                         <button
                                                                             type="button"

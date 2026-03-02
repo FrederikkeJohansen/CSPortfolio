@@ -328,10 +328,10 @@ export default function UploadModal({ open, onClose }: Props) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/60" />
-            <div className="relative bg-zinc-50 dark:bg-zinc-900 rounded-md w-2/3 mx-4 max-h-[90vh] flex flex-col">
+            <div className="relative bg-zinc-50 dark:bg-zinc-800 rounded-md w-2/3 mx-4 max-h-[90vh] flex flex-col">
 
                 {/* Sticky header */}
-                <div className="sticky z-10 bg-zinc-50 dark:bg-zinc-900 rounded-t-md">
+                <div className="sticky z-10 bg-zinc-50 dark:bg-zinc-800 rounded-t-md">
                     <button onClick={onClose} className="absolute right-4 text-zinc-400 hover:text-black dark:hover:text-white cursor-pointer text-lg">✕</button>
                     <h2 className="pt-4 text-center text-xl text-indigo-500 font-bold tracking-wide uppercase mb-3">Upload Project</h2>
                     <hr className="border-zinc-300 dark:border-zinc-700" />
@@ -358,7 +358,7 @@ export default function UploadModal({ open, onClose }: Props) {
                             >
                                 <span className={cn(
                                     "size-5 rounded-sm flex items-center justify-center text-sm shrink-0",
-                                    n === step ? "bg-white/20" : "bg-transparent"
+                                    n === step ? "bg-white/20 dark:bg-zinc-700" : "bg-transparent"
                                 )}>
                                     {n}
                                 </span>
@@ -374,7 +374,7 @@ export default function UploadModal({ open, onClose }: Props) {
 
                     {/* Error message */}
                     {error && (
-                        <div ref={errorRef} className="mt-4 px-4 py-2 rounded-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
+                        <div ref={errorRef} className="mt-4 px-4 py-2 rounded-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-200 text-sm">
                             {error}
                         </div>
                     )}
@@ -828,7 +828,7 @@ export default function UploadModal({ open, onClose }: Props) {
                                     <p className="mt-2">
                                         <a
                                             href="https://www.datatilsynet.dk/regler-og-vejledning/gdpr-univers-for-smaa-virksomheder/grundlaeggende-om-gdpr"
-                                            className="text-black dark:text-white hover:text-indigo-600 underline"
+                                            className="text-black dark:text-white hover:text-indigo-400 underline"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                         >
@@ -857,7 +857,7 @@ export default function UploadModal({ open, onClose }: Props) {
                             <button
                                 type="button"
                                 onClick={() => { setStep(prev => prev - 1); setError("") }}
-                                className="px-5 py-2 rounded-full text-sm font-medium text-gray-600 dark:text-zinc-300 border border-gray-300 dark:border-zinc-600 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+                                className="px-5 py-2 rounded-full text-sm font-medium text-zinc-600 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-600 hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors cursor-pointer"
                             >
                                 Back
                             </button>

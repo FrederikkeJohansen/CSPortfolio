@@ -76,7 +76,7 @@ export default function ImageManagerModal({
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center">
             <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-            <div className="relative bg-zinc-50 dark:bg-zinc-900 rounded-md w-1/2 mx-4 max-h-[80vh] flex flex-col">
+            <div className="relative bg-zinc-50 dark:bg-zinc-800 rounded-md w-1/2 mx-4 max-h-[80vh] flex flex-col">
 
                 {/* Header */}
                 <div className="flex items-center justify-between px-8 py-4 border-b border-zinc-300 dark:border-zinc-700">

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 import { ProjectImage } from '@/types'
@@ -16,6 +17,26 @@ type Props = {
     title: string
 }
 
+function CarouselImage({ src, alt }: { src: string; alt: string }) {
+    const [loaded, setLoaded] = useState(false)
+
+    return (
+        <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-zinc-200 dark:bg-zinc-800">
+            {!loaded && (
+                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-zinc-200 via-zinc-300 to-zinc-200 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-800" />
+            )}
+            <Image
+                src={src}
+                alt={alt}
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                onLoad={() => setLoaded(true)}
+                className={`object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+            />
+        </div>
+    )
+}
+
 export default function ProjectImageDisplay({ images, title }: Props) {
     if (!images || images.length === 0) return null
 
@@ -28,14 +49,10 @@ export default function ProjectImageDisplay({ images, title }: Props) {
             <CarouselContent>
                 {images.map((img, i) => (
                     <CarouselItem key={i} className="basis-full md:basis-1/3">
-                        <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-zinc-200 dark:bg-zinc-800">
-                            <Image
-                                src={img.image_url}
-                                alt={`${title} image ${i + 1}`}
-                                fill
-                                className="object-cover"
-                            />
-                        </div>
+                        <CarouselImage
+                            src={img.image_url}
+                            alt={`${title} image ${i + 1}`}
+                        />
                     </CarouselItem>
                 ))}
             </CarouselContent>

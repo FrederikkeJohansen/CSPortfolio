@@ -37,8 +37,8 @@ export default async function ProjectPage({ params }: Props) {
                     </p>
                     <h1 className="text-4xl font-bold text-zinc-800 dark:text-zinc-200 mb-4">{project?.title}</h1>
 
-                    <p className="text-md font-medium text-black dark:text-zinc-300 mb-1">{project?.description}</p>
-                    <p className="text-md text-black dark:text-white mb-1"><span className="uppercase tracking-wide font-bold text-black dark:text-indigo-300">Key Words: </span>something</p>
+                    <p className="text-sm md:text-md font-medium text-black dark:text-zinc-300 mb-1">{project?.description}</p>
+                    <p className="text-sm text-black dark:text-white mb-1"><span className="uppercase tracking-wide font-bold text-black dark:text-indigo-300">Key Words: </span>something</p>
 
                     <p className="text-sm font-bold text-zinc-500 dark:text-zinc-300 mt-4">Created by: {project?.student_creators}</p>
 

@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { Project, Course } from "@/types";
+import { Project } from "@/types";
 import Navbar from "@/components/Navbar";
 import FeaturedProjects from "@/components/FeaturedProjects";
 import Hero from "@/components/Hero";
@@ -28,7 +28,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       <Navbar />
-      <main className="py-8 px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20">
+      <main className="py-8 max-w-7xl mx-auto px-8">
         <FeaturedProjects />
         <Hero />
         <ProjectsSelection

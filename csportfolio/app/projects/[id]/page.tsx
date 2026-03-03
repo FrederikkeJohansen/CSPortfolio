@@ -25,7 +25,7 @@ export default async function ProjectPage({ params }: Props) {
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-black ">
             <Navbar />
-            <div className="px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 mb-8">
+            <div className="max-w-7xl mx-auto px-8 mb-8">
                 <BackButton />
                 <div className="mb-4">
                     <ProjectImageDisplay

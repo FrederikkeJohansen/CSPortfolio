@@ -46,7 +46,7 @@ export default function ProjectImageDisplay({ images, title }: Props) {
         <Carousel
             opts={{ align: 'start', loop: true, dragFree: true }}
             plugins={[WheelGesturesPlugin({ wheelDraggingClass: '', forceWheelAxis: 'x' })]}
-            className="group mt-4"
+            className="group mt-2"
         >
             <CarouselContent>
                 {images.map((img, i) => (

@@ -23,7 +23,9 @@ function CarouselImage({ src, alt }: { src: string; alt: string }) {
     return (
         <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-zinc-200 dark:bg-zinc-800">
             {!loaded && (
-                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-zinc-200 via-zinc-300 to-zinc-200 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-800" />
+                <div className="absolute inset-0 overflow-hidden bg-zinc-200 dark:bg-zinc-800">
+                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/15" />
+                </div>
             )}
             <Image
                 src={src}

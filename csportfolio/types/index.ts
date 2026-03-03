@@ -3,11 +3,7 @@ export type Course = {
   name: string
 }
 
-export type Filter = {
-  id: string
-  type: string
-  value: string
-}
+
 
 export type ImageEntry = {
   file: File
@@ -22,7 +18,6 @@ export type UploadFormData = {
   poster_file: File | null
   student_creators: string
   course_id: string
-  selected_filters: string[]
   image_files: ImageEntry[]
   primary_image_index: number
   student_name: string
@@ -52,5 +47,4 @@ export type Project = {
   // joined relations:
   courses: { id: string; name: string } | null
   project_images: ProjectImage[]
-  project_filters: { filters: Filter[] }[]
 }

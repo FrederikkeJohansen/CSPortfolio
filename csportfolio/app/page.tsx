@@ -3,9 +3,6 @@ import { Project, Course } from "@/types";
 import Navbar from "@/components/Navbar";
 import FeaturedProjects from "@/components/FeaturedProjects";
 import Hero from "@/components/Hero";
-import CourseFilter from "@/components/CourseFilter";
-import AdvancedFilter from "@/components/AdvancedFilter";
-import ProjectGrid from "@/components/ProjectGrid";
 import ProjectsSelection from "@/components/ProjectsSelection";
 import Footer from "@/components/Footer";
 
@@ -20,8 +17,7 @@ export default async function Home() {
   featured, visible, student_creators,
   display_order, created_at,
   courses(id, name),
-  project_images(image_url, display_order),
-  project_filters(filters(type, value))
+  project_images(image_url, display_order)
 `)
     .eq('visible', true)
     .order('display_order', { ascending: true })

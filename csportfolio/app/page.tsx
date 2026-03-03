@@ -17,8 +17,7 @@ export default async function Home() {
   featured, visible, student_creators,
   display_order, created_at,
   courses(id, name),
-  project_images(image_url, display_order),
-  project_filters(filters(type, value))
+  project_images(image_url, display_order)
 `)
     .eq('visible', true)
     .order('display_order', { ascending: true })

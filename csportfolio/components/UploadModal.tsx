@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
-import { Course, Filter, ImageEntry, UploadFormData } from "@/types"
+import { Course, ImageEntry, UploadFormData } from "@/types"
 import ImageManagerModal from "./ImageManagerModal"
 
 type Props = {
@@ -19,7 +19,6 @@ const initialFormData: UploadFormData = {
     poster_file: null,
     student_creators: "",
     course_id: "",
-    selected_filters: [],
     image_files: [],
     primary_image_index: 0,
     student_name: "",
@@ -33,7 +32,6 @@ export default function UploadModal({ open, onClose }: Props) {
     const [step, setStep] = useState(1)
     const [formData, setFormData] = useState<UploadFormData>(initialFormData)
     const [courses, setCourses] = useState<Course[]>([])
-    const [filters, setFilters] = useState<Filter[]>([])
     const [courseSearch, setCourseSearch] = useState("")
     const [courseDropdownOpen, setCourseDropdownOpen] = useState(false)
     const [highlightedIndex, setHighlightedIndex] = useState(-1)
@@ -44,23 +42,20 @@ export default function UploadModal({ open, onClose }: Props) {
     const [posterLoading, setPosterLoading] = useState(false)
     const [imageModalOpen, setImageModalOpen] = useState(false)
     const [invalidFields, setInvalidFields] = useState<Set<string>>(new Set())
-    const [openFilterTypes, setOpenFilterTypes] = useState<Set<string>>(new Set())
     const courseRef = useRef<HTMLDivElement>(null)
     const courseListRef = useRef<HTMLUListElement>(null)
     const posterInputRef = useRef<HTMLInputElement>(null)
     const errorRef = useRef<HTMLDivElement>(null)
     const [showExitConfirm, setShowExitConfirm] = useState(false)
 
-    // Fetch courses and filters when modal opens
+    // Fetch courses when modal opens
     useEffect(() => {
         if (!open) return
         const fetchData = async () => {
-            const [coursesRes, filtersRes] = await Promise.all([
+            const [coursesRes] = await Promise.all([
                 supabase.from("courses").select("id, name").order("name"),
-                supabase.from("filters").select("id, type, value").order("type"),
             ])
             if (coursesRes.data) setCourses(coursesRes.data)
-            if (filtersRes.data) setFilters(filtersRes.data)
         }
         fetchData()
     }, [open])
@@ -103,7 +98,6 @@ export default function UploadModal({ open, onClose }: Props) {
             setSuccess(false)
             setImageModalOpen(false)
             setInvalidFields(new Set())
-            setOpenFilterTypes(new Set())
         }
     }, [open])
 
@@ -111,36 +105,10 @@ export default function UploadModal({ open, onClose }: Props) {
         setFormData(prev => ({ ...prev, [field]: value }))
     }
 
-    const toggleFilter = (filterId: string) => {
-        setFormData(prev => ({
-            ...prev,
-            selected_filters: prev.selected_filters.includes(filterId)
-                ? prev.selected_filters.filter(id => id !== filterId)
-                : [...prev.selected_filters, filterId],
-        }))
-    }
-
-    const toggleFilterType = (type: string) => {
-        setOpenFilterTypes(prev => {
-            const next = new Set(prev)
-            if (next.has(type)) next.delete(type)
-            else next.add(type)
-            return next
-        })
-    }
-
-    const formatFilterType = (type: string) =>
-        type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())
-
     const selectedCourse = courses.find(c => c.id === formData.course_id)
     const filteredCourses = courses.filter(c =>
         c.name.toLowerCase().includes(courseSearch.toLowerCase())
     )
-    const filtersByType = filters.reduce<Record<string, Filter[]>>((acc, f) => {
-        if (!acc[f.type]) acc[f.type] = []
-        acc[f.type].push(f)
-        return acc
-    }, {})
 
     // --- Validation ---
     const formatErrorList = (parts: string[]) => {
@@ -247,20 +215,7 @@ export default function UploadModal({ open, onClose }: Props) {
 
             if (insertError) throw new Error("Failed to submit project: " + insertError.message)
 
-            // 4. Link filters
-            if (formData.selected_filters.length > 0) {
-                const filterRows = formData.selected_filters.map(filterId => ({
-                    project_id: projectId,
-                    filter_id: filterId,
-                }))
-                const { error: filterError } = await supabase
-                    .from("project_filters")
-                    .insert(filterRows)
-
-                if (filterError) throw new Error("Failed to link filters: " + filterError.message)
-            }
-
-            // 5. Upload images
+            // 4. Upload images
             if (formData.image_files.length > 0) {
                 const imageRows = []
                 for (let i = 0; i < formData.image_files.length; i++) {
@@ -715,80 +670,6 @@ export default function UploadModal({ open, onClose }: Props) {
                                 </div>
 
 
-                                {/* Filters grouped by type */}
-                                {Object.keys(filtersByType).length > 0 && (
-                                    <div className="flex flex-col gap-1">
-                                        <label className={labelClass}>Filters</label>
-                                        <div className="flex flex-col">
-                                            {Object.entries(filtersByType).map(([type, typeFilters]) => {
-                                                const isOpen = openFilterTypes.has(type)
-                                                const selectedInType = typeFilters.filter(f => formData.selected_filters.includes(f.id))
-                                                return (
-                                                    <div key={type} className="border-b border-zinc-200 dark:border-zinc-700 last:border-b-0">
-                                                        {/* Accordion header */}
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => toggleFilterType(type)}
-                                                            className="flex items-center justify-between w-full py-3 text-left"
-                                                        >
-                                                            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                                                {formatFilterType(type)}
-                                                            </span>
-                                                            <svg
-                                                                className={cn("w-4 h-4 text-zinc-400 transition-transform shrink-0 cursor-pointer", isOpen && "rotate-180")}
-                                                                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-                                                            >
-                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                                                            </svg>
-                                                        </button>
-
-                                                        {/* Selected chips — visible when collapsed */}
-                                                        {!isOpen && selectedInType.length > 0 && (
-                                                            <div className="flex flex-wrap gap-2 pb-3">
-                                                                {selectedInType.map(f => (
-                                                                    <span key={f.id} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full font-medium border-2 border-indigo-500 dark:border-indigo-400 dark:text-white text-xs sm:text-sm ">
-                                                                        {f.value}
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => toggleFilter(f.id)}
-                                                                            className="ml-1 text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-200 cursor-pointer"
-                                                                        >
-                                                                            ×
-                                                                        </button>
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-                                                        )}
-
-                                                        {/* Expanded options */}
-                                                        {isOpen && (
-                                                            <div className="flex flex-wrap gap-2 pb-4">
-                                                                {typeFilters.map(f => {
-                                                                    const isChecked = formData.selected_filters.includes(f.id)
-                                                                    return (
-                                                                        <button
-                                                                            key={f.id}
-                                                                            type="button"
-                                                                            onClick={() => toggleFilter(f.id)}
-                                                                            className={cn(
-                                                                                "px-3 py-1.5 rounded-full text-sm border transition-colors cursor-pointer",
-                                                                                isChecked
-                                                                                    ? "bg-indigo-500 text-white border-indigo-500"
-                                                                                    : "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border-zinc-300 dark:border-zinc-600 hover:border-indigo-400"
-                                                                            )}
-                                                                        >
-                                                                            {f.value}
-                                                                        </button>
-                                                                    )
-                                                                })}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     )}

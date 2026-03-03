@@ -25,7 +25,7 @@ export default async function ProjectPage({ params }: Props) {
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-black ">
             <Navbar />
-            <div className="max-w-7xl mx-auto px-8 mb-8">
+            <div className="px-4 sm:px-8 mb-8">
                 <BackButton />
                 <div className="mb-4">
                     <ProjectImageDisplay
@@ -39,8 +39,8 @@ export default async function ProjectPage({ params }: Props) {
                     </p>
                     <h1 className="text-2xl md:text-4xl font-bold text-zinc-800 dark:text-zinc-200 mb-4">{project?.title}</h1>
 
-                    <p className="text-sm xl:text-xl font-medium text-black dark:text-zinc-300 mb-1">{project?.description}</p>
-                    <p className="text-sm text-sm xl:text-xl text-black dark:text-white mb-1"><span className="uppercase tracking-wide font-bold text-black dark:text-white">Key Words: </span>Something</p>
+                    <p className="text-sm md:text-base 2xl:text-xl font-medium text-black dark:text-zinc-300 mb-1">{project?.description}</p>
+                    <p className="text-sm md:text-base 2xl:text-xl text-black dark:text-white mb-1"><span className="uppercase tracking-wide font-bold text-black dark:text-white">Key Words: </span>Something</p>
 
                     <p className="text-sm font-bold text-zinc-500 dark:text-zinc-300 mt-4">Created by: {project?.student_creators}</p>
 

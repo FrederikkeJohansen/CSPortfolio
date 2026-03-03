@@ -28,7 +28,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       <Navbar />
-      <main className="py-8 max-w-7xl mx-auto px-8">
+      <main className="py-8 px-4 sm:px-8">
         <FeaturedProjects />
         <Hero />
         <ProjectsSelection

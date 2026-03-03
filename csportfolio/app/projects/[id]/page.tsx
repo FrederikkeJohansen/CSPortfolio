@@ -1,4 +1,8 @@
 import { supabase } from "@/lib/supabase"
+import { Project } from "@/types"
+import ProjectImageDisplay from "@/components/ProjectImageDisplay"
+import Navbar from "@/components/Navbar"
+import Footer from "@/components/Footer"
 
 type Props = {
     params: Promise<{ id: string }>
@@ -6,7 +10,7 @@ type Props = {
 
 export default async function ProjectPage({ params }: Props) {
     const { id } = await params
-    const { data: project, error } = await supabase
+    const { data, error } = await supabase
         .from('projects')
         .select(`
     id, title, description, year, video_url, poster_url, visible, student_creators,
@@ -16,13 +20,53 @@ export default async function ProjectPage({ params }: Props) {
   `)
         .eq('id', id)
         .single()  // ← returns one object instead of an array
-    console.log("project", project)
-    console.log("error", error)
+    const project = data as unknown as Project
+
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-black">
-            <h1 className="text-3xl font-bold text-center pt-20">Project ID: {project?.title}</h1>
+        <div className="min-h-screen bg-zinc-50 dark:bg-black ">
+            <Navbar />
+            <div className="mx-20">
+                <div className="mb-4">
+                    <ProjectImageDisplay
+                        images={project?.project_images ?? []}
+                        title={project?.title ?? ""}
+                    />
+                </div>
+                <div className="flex flex-col justify-left items-left">
+                    <p className="text-xs font-semibold tracking-wide uppercase text-indigo-500 dark:text-indigo-300">
+                        {project?.courses?.name} <span> • </span> {project?.year}
+                    </p>
+                    <h1 className="text-4xl font-bold text-zinc-800 dark:text-zinc-200 mb-2">{project?.title}</h1>
+                    <p className="text-md font-medium text-black dark:text-zinc-300 mb-2">{project?.description}</p>
+                    <p className="text-sm font-bold text-zinc-500 dark:text-zinc-300 ">Created by: {project?.student_creators}</p>
 
+                    <div className="flex flex-row gap-4 text-md font-medium mt-2">
+                        {project?.video_url ? (
+                            <a href={project.video_url} target="_blank" rel="noopener noreferrer"
+                                className="text-indigo-500 dark:text-indigo-300 hover:underline">
+                                See video
+                            </a>
+                        ) : (
+                            <span title="No video added" className="text-md font-bold text-zinc-400 dark:text-zinc-600 cursor-default">
+                                See video
+                            </span>
+                        )}
 
+                        {project?.poster_url ? (
+                            <a href={project.poster_url} target="_blank" rel="noopener noreferrer"
+                                className="text-indigo-500 dark:text-indigo-300 hover:underline">
+                                See poster
+                            </a>
+                        ) : (
+                            <span title="No poster added" className="text-md font-bold text-zinc-400 dark:text-zinc-600 cursor-default">
+                                See poster
+                            </span>
+                        )}
+                    </div>
+                </div>
+
+            </div>
+            <Footer />
         </div>
     )
 }

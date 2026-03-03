@@ -3,9 +3,6 @@ import { Project, Course } from "@/types";
 import Navbar from "@/components/Navbar";
 import FeaturedProjects from "@/components/FeaturedProjects";
 import Hero from "@/components/Hero";
-import CourseFilter from "@/components/CourseFilter";
-import AdvancedFilter from "@/components/AdvancedFilter";
-import ProjectGrid from "@/components/ProjectGrid";
 import ProjectsSelection from "@/components/ProjectsSelection";
 import Footer from "@/components/Footer";
 

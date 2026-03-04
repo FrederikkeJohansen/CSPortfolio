@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import UploadModal from "@/components/UploadModal"
+import SearchBar from "@/components/SearchBar"
 
 
 export default function Navbar() {
@@ -15,7 +16,7 @@ export default function Navbar() {
                     </h1>
                     <div className="flex gap-2">
                         <Button variant="upload" onClick={() => setUploadOpen(true)} className="text-xs dark:active:text-indigo-300 font-semibold tracking-wide uppercase text-indigo-500 dark:text-indigo-300">Upload project</Button>
-                        <Button variant="outline">Search</Button>
+                        <SearchBar />
                     </div>
                 </div>
 

@@ -5,6 +5,7 @@ import FeaturedProjects from "@/components/FeaturedProjects";
 import Hero from "@/components/Hero";
 import ProjectsSelection from "@/components/ProjectsSelection";
 import Footer from "@/components/Footer";
+import SearchModal from "@/components/SearchModal";
 
 export default async function Home() {
   // Fetch courses for filter options
@@ -26,18 +27,22 @@ export default async function Home() {
   if (error) {
     console.error('Failed to fetch projects:', error)
   }
+  const allProjects = (projects as unknown as Project[]) ?? [];
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black">
-      <Navbar />
-      <main className="py-8 px-4 sm:px-8">
-        <FeaturedProjects />
-        <Hero />
-        <ProjectsSelection
-          projects={(projects as unknown as Project[]) ?? []}
-          courses={courses ?? []}
-        />
-      </main>
-      <Footer />
-    </div>
+    <>
+      <div className="min-h-screen bg-zinc-50 dark:bg-black">
+        <Navbar />
+        <main className="py-8 px-4 sm:px-8">
+          <FeaturedProjects />
+          <Hero />
+          <ProjectsSelection
+            projects={allProjects}
+            courses={courses ?? []}
+          />
+        </main>
+        <Footer />
+      </div>
+      <SearchModal projects={allProjects} />
+    </>
   );
 }

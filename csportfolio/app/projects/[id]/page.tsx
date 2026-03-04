@@ -4,6 +4,7 @@ import ProjectImageDisplay from "@/components/ProjectImageDisplay"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
 import BackButton from "@/components/BackButton"
+import SearchModal from "@/components/SearchModal"
 
 type Props = {
     params: Promise<{ id: string }>
@@ -23,6 +24,7 @@ export default async function ProjectPage({ params }: Props) {
     const project = data as unknown as Project
 
     return (
+        <>
         <div className="min-h-screen bg-zinc-50 dark:bg-black ">
             <Navbar />
             <div className="px-4 sm:px-8 mb-8">
@@ -83,5 +85,7 @@ export default async function ProjectPage({ params }: Props) {
             </div>
             <Footer />
         </div>
+        <SearchModal />
+        </>
     )
 }

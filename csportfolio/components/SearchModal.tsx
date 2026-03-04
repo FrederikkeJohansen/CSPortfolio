@@ -119,10 +119,10 @@ export default function SearchModal({ projects: propProjects }: Props) {
                         <input
                             ref={inputRef}
                             type="text"
-                            placeholder="Search by title, keyword, course, creator..."
+                            placeholder="Search by title, keyword, course, creator, year..."
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            className="flex-1 h-12 bg-transparent text-lg text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none"
+                            className="flex-1 h-12 font-normal bg-transparent text-lg text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none"
                         />
                         {searchQuery && (
                             <button
@@ -143,7 +143,7 @@ export default function SearchModal({ projects: propProjects }: Props) {
             {/* Results */}
             <div className="px-4 sm:px-8 py-8">
                 {!query && (
-                    <p className="text-center text-zinc-400 dark:text-zinc-500 text-sm mt-20">
+                    <p className="text-center font-normal text-zinc-400 dark:text-zinc-500 text-sm mt-20">
                         Start typing to search projects
                     </p>
                 )}

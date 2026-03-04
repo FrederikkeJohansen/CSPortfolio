@@ -14,7 +14,7 @@ export default function Navbar() {
                 <div className="p-8 flex items-center justify-between">
                     <h1 className="text-4xl font-bold text-black dark:text-white">Something really cool, and maybe a logo?
                     </h1>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
                         <Button variant="upload" onClick={() => setUploadOpen(true)} className="text-xs dark:active:text-indigo-300 font-semibold tracking-wide uppercase text-indigo-500 dark:text-indigo-300">Upload project</Button>
                         <SearchBar />
                     </div>

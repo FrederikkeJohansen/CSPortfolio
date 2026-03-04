@@ -9,10 +9,10 @@ export default function SearchBar() {
         <button
             type="button"
             onClick={() => openSearch()}
-            className="flex items-center justify-center w-10 h-10 rounded-full border border-transparent hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors cursor-pointer"
+            className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-transparent hover:border-indigo-500 dark:hover:border-indigo-600 transition-colors duration-500 ease-in-out cursor-pointer"
         >
             <svg
-                className="w-5 h-5 text-zinc-500 dark:text-zinc-400"
+                className="w-5 h-5 text-indigo-500 dark:text-indigo-300"
                 viewBox="0 0 32 32"
                 fill="currentColor"
             >

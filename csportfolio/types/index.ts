@@ -1,6 +1,7 @@
 export type Course = {
   id: string
   name: string
+  available: boolean
 }
 
 export type ImageEntry = {
@@ -43,6 +44,6 @@ export type Project = {
   created_at: string
   display_order: number
   // joined relations:
-  courses: { id: string; name: string } | null
+  courses: { id: string; name: string; available: boolean } | null
   project_images: ProjectImage[]
 }

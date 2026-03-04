@@ -15,7 +15,7 @@ export default async function ProjectPage({ params }: Props) {
         .from('projects')
         .select(`
     id, title, description, year, video_url, poster_url, visible, student_creators,
-    courses(id, name),
+    courses(id, name, available),
     project_images(image_url, display_order)
   `)
         .eq('id', id)
@@ -35,7 +35,13 @@ export default async function ProjectPage({ params }: Props) {
                 </div>
                 <div className="flex flex-col">
                     <p className="text-xs font-semibold tracking-wide uppercase text-indigo-500 dark:text-indigo-300 mb-1">
-                        {project?.courses?.name} <span> • </span> {project?.year}
+                        <span className={project?.courses?.available === false ? "text-zinc-400 dark:text-zinc-500" : ""}>
+                            {project?.courses?.name}
+                            {project?.courses && project.courses.available === false && (
+                                <span className="normal-case"> (course is no longer available)</span>
+                            )}
+                        </span>
+                        <span> • </span> {project?.year}
                     </p>
                     <h1 className="text-2xl md:text-4xl font-bold text-zinc-800 dark:text-zinc-200 mb-2">{project?.title}</h1>
 

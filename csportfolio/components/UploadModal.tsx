@@ -53,9 +53,9 @@ export default function UploadModal({ open, onClose }: Props) {
         if (!open) return
         const fetchData = async () => {
             const [coursesRes] = await Promise.all([
-                supabase.from("courses").select("id, name").order("name"),
+                supabase.from("courses").select("id, name, available").order("name"),
             ])
-            if (coursesRes.data) setCourses(coursesRes.data)
+            if (coursesRes.data) setCourses(coursesRes.data.filter(c => c.available))
         }
         fetchData()
     }, [open])
@@ -98,6 +98,7 @@ export default function UploadModal({ open, onClose }: Props) {
             setSuccess(false)
             setImageModalOpen(false)
             setInvalidFields(new Set())
+            setShowExitConfirm(false)
         }
     }, [open])
 

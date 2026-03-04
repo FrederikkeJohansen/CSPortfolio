@@ -14,7 +14,7 @@ export default function Navbar() {
             <nav className="w-full sticky top-0 z-50 bg-zinc-50/80 dark:bg-black/80 backdrop-blur-sm">
                 <div className="px-8 py-4 flex items-center justify-end md:justify-between">
                     <p className="hidden md:block text-sm font-semibold tracking-widest uppercase text-zinc-400 dark:text-zinc-500 select-none">
-                        The student project portfolio - upload & explore
+                        Student project portfolio - upload & explore
                     </p>
                     <div className="flex gap-2 items-center">
                         <Button variant="upload" onClick={() => setUploadOpen(true)} className="text-xs dark:active:text-indigo-300 font-semibold tracking-wide uppercase text-indigo-500 dark:text-indigo-300">Upload project</Button>

@@ -11,12 +11,13 @@ type Props = {
     projects: Project[]
 }
 
-const MIN_VISIBLE = 6
+const MIN_VISIBLE = 20
 
 export default function FeaturedProjects({ projects }: Props) {
     const plugin = useRef(
         AutoScroll({
             speed: 1,
+            playOnInit: true,
             stopOnInteraction: false,
             stopOnMouseEnter: true,
         })
@@ -40,14 +41,8 @@ export default function FeaturedProjects({ projects }: Props) {
 
     return (
         <div
-            className="mb-6 overflow-hidden"
+            className="mb-6 overflow-hidden -mx-4 sm:-mx-8"
             ref={emblaRef}
-            style={{
-                maskImage:
-                    "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
-                WebkitMaskImage:
-                    "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
-            }}
         >
             <div className="flex gap-4">
                 {items.map((project, i) => {

@@ -28,12 +28,13 @@ export default async function Home() {
     console.error('Failed to fetch projects:', error)
   }
   const allProjects = (projects as unknown as Project[]) ?? [];
+  const featuredProjects = allProjects.filter(p => p.featured);
   return (
     <>
       <div className="min-h-screen bg-zinc-50 dark:bg-black">
         <Navbar />
         <main className="py-8 px-4 sm:px-8">
-          <FeaturedProjects />
+          <FeaturedProjects projects={featuredProjects} />
           <Hero />
           <ProjectsSelection
             projects={allProjects}

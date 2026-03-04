@@ -3,8 +3,6 @@ export type Course = {
   name: string
 }
 
-
-
 export type ImageEntry = {
   file: File
   preview: string

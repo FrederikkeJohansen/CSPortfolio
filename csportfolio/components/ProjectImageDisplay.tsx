@@ -61,8 +61,8 @@ export default function ProjectImageDisplay({ images, title }: Props) {
 
             {images.length > 1 && (
                 <>
-                    <CarouselPrevious className="left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                    <CarouselNext className="right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                    <CarouselPrevious className="dark:bg-zinc-700 hover:dark:text-black left-4 opacity-0 group-hover:opacity-90 transition-opacity duration-200 cursor-pointer" />
+                    <CarouselNext className="dark:bg-zinc-700 hover:dark:text-black right-4 opacity-0 group-hover:opacity-90 transition-opacity duration-200 cursor-pointer" />
                 </>
             )}
         </Carousel>

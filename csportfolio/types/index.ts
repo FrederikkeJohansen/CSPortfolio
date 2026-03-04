@@ -1,9 +1,8 @@
 export type Course = {
   id: string
   name: string
+  available: boolean
 }
-
-
 
 export type ImageEntry = {
   file: File
@@ -18,6 +17,7 @@ export type UploadFormData = {
   poster_file: File | null
   student_creators: string
   course_id: string
+  keywords: string[]
   image_files: ImageEntry[]
   primary_image_index: number
   student_name: string
@@ -45,6 +45,7 @@ export type Project = {
   created_at: string
   display_order: number
   // joined relations:
-  courses: { id: string; name: string } | null
+  courses: { id: string; name: string; available: boolean } | null
   project_images: ProjectImage[]
+  keywords: string[]
 }

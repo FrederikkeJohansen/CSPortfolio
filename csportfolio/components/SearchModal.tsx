@@ -94,7 +94,7 @@ export default function SearchModal({ projects: propProjects }: Props) {
     return (
         <div className="fixed inset-0 z-50 bg-zinc-50 dark:bg-black overflow-y-auto">
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-white dark:bg-zinc-900 shadow">
+            <div className="sticky top-0 z-50 bg-zinc-50/80 dark:bg-black/80 backdrop-blur-sm">
                 <div className="p-8 flex items-center gap-4">
                     {/* Close button */}
                     <button
@@ -122,7 +122,7 @@ export default function SearchModal({ projects: propProjects }: Props) {
                             placeholder="Search by title, keyword, course, creator, year..."
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            className="flex-1 h-12 font-normal bg-transparent text-lg text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none"
+                            className="flex-1 h-12 font-normal bg-transparent text-lg text-zinc-800 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-400 outline-none"
                         />
                         {searchQuery && (
                             <button
@@ -131,7 +131,7 @@ export default function SearchModal({ projects: propProjects }: Props) {
                                     setSearchQuery("")
                                     inputRef.current?.focus()
                                 }}
-                                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer"
+                                className="text-zinc-400 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer"
                             >
                                 ✕
                             </button>
@@ -143,13 +143,13 @@ export default function SearchModal({ projects: propProjects }: Props) {
             {/* Results */}
             <div className="px-4 sm:px-8 py-8">
                 {!query && (
-                    <p className="text-center font-normal text-zinc-400 dark:text-zinc-500 text-sm mt-20">
+                    <p className="text-center font-normal text-zinc-400 dark:text-white text-sm mt-20">
                         Start typing to search projects
                     </p>
                 )}
 
                 {query && filteredProjects.length === 0 && (
-                    <p className="text-center text-zinc-400 dark:text-zinc-500 text-sm mt-20">
+                    <p className="text-center text-zinc-400 dark:text-white text-sm mt-20">
                         No projects found for &ldquo;{searchQuery}&rdquo;
                     </p>
                 )}

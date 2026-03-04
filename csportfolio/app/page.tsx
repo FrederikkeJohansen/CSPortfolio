@@ -8,15 +8,16 @@ import Footer from "@/components/Footer";
 
 export default async function Home() {
   // Fetch courses for filter options
-  const { data: courses } = await supabase.from('courses').select('id, name').order('name', { ascending: true });
+  const { data: coursesData } = await supabase.from('courses').select('id, name, available').order('name', { ascending: true });
+  const courses = (coursesData ?? []).filter(c => c.available);
   // Fetch projects with related data
   const { data: projects, error } = await supabase
     .from('projects')
     .select(`
   id, title, description, year, video_url, poster_url,
-  featured, visible, student_creators,
+  featured, visible, student_creators, keywords,
   display_order, created_at,
-  courses(id, name),
+  courses(id, name, available),
   project_images(image_url, display_order)
 `)
     .eq('visible', true)
@@ -28,7 +29,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       <Navbar />
-      <main className="py-8 max-w-7xl mx-auto px-8">
+      <main className="py-8 px-4 sm:px-8">
         <FeaturedProjects />
         <Hero />
         <ProjectsSelection

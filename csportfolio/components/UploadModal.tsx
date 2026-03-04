@@ -19,6 +19,7 @@ const initialFormData: UploadFormData = {
     poster_file: null,
     student_creators: "",
     course_id: "",
+    keywords: [],
     image_files: [],
     primary_image_index: 0,
     student_name: "",
@@ -47,15 +48,16 @@ export default function UploadModal({ open, onClose }: Props) {
     const posterInputRef = useRef<HTMLInputElement>(null)
     const errorRef = useRef<HTMLDivElement>(null)
     const [showExitConfirm, setShowExitConfirm] = useState(false)
+    const [keywordInput, setKeywordInput] = useState("")
 
     // Fetch courses when modal opens
     useEffect(() => {
         if (!open) return
         const fetchData = async () => {
             const [coursesRes] = await Promise.all([
-                supabase.from("courses").select("id, name").order("name"),
+                supabase.from("courses").select("id, name, available").order("name"),
             ])
-            if (coursesRes.data) setCourses(coursesRes.data)
+            if (coursesRes.data) setCourses(coursesRes.data.filter(c => c.available))
         }
         fetchData()
     }, [open])
@@ -98,6 +100,8 @@ export default function UploadModal({ open, onClose }: Props) {
             setSuccess(false)
             setImageModalOpen(false)
             setInvalidFields(new Set())
+            setShowExitConfirm(false)
+            setKeywordInput("")
         }
     }, [open])
 
@@ -210,6 +214,7 @@ export default function UploadModal({ open, onClose }: Props) {
                     student_name: formData.student_name.trim(),
                     student_email: formData.student_email.trim(),
                     student_number: formData.student_number.trim(),
+                    keywords: formData.keywords,
                     visible: false,
                 })
 
@@ -385,6 +390,42 @@ export default function UploadModal({ open, onClose }: Props) {
                                         onChange={e => update("description", e.target.value)}
                                         className={cn(inputClass, "resize-none")}
                                     />
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                    <label className={labelClass}>Keywords</label>
+                                    <div className={cn("flex flex-wrap gap-2 min-h-[42px] px-3 py-2 rounded-md border bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-600 focus-within:border-indigo-400 focus-within:ring-1 focus-within:ring-indigo-400 transition-colors", formData.keywords.length > 0 && "pb-2")}>
+                                        {formData.keywords.map(kw => (
+                                            <span key={kw} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300">
+                                                {kw}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => update("keywords", formData.keywords.filter(k => k !== kw))}
+                                                    className="text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-200 cursor-pointer"
+                                                >✕</button>
+                                            </span>
+                                        ))}
+                                        <input
+                                            type="text"
+                                            placeholder={formData.keywords.length === 0 ? "Keyword to the project → Enter or comma to add" : ""}
+                                            value={keywordInput}
+                                            onChange={e => setKeywordInput(e.target.value)}
+                                            onKeyDown={e => {
+                                                if ((e.key === "Enter" || e.key === ",") && keywordInput.trim()) {
+                                                    e.preventDefault()
+                                                    const kw = keywordInput.trim().replace(/,$/, "")
+                                                    if (kw && !formData.keywords.includes(kw)) {
+                                                        update("keywords", [...formData.keywords, kw])
+                                                    }
+                                                    setKeywordInput("")
+                                                } else if (e.key === "Backspace" && !keywordInput && formData.keywords.length > 0) {
+                                                    update("keywords", formData.keywords.slice(0, -1))
+                                                }
+                                            }}
+                                            className="flex-1 min-w-[120px] outline-none bg-transparent text-sm text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
+                                        />
+                                    </div>
+                                    <p className="text-xs text-zinc-400 dark:text-zinc-500">E.g. software, hardware, material, fabricatoin method, interaction - Use Enter or comma to add, backspace to remove</p>
                                 </div>
 
                                 {/* Course search dropdown */}

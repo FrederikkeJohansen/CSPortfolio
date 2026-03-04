@@ -1,7 +1,7 @@
 import { Project } from "@/types";
 import Image from "next/image";
 import Link from "next/link"
-
+import { cn } from "@/lib/utils"
 
 type ProjectCardProps = {
     project: Project
@@ -10,6 +10,7 @@ type ProjectCardProps = {
 export default function ProjectCard({ project }: ProjectCardProps) {
     const imageSrc = project.project_images?.[0]?.image_url ?? null
     const courseName = project.courses?.name ?? null
+    const courseAvailable = project.courses?.available !== false
 
     return (
         <Link href={`/projects/${project.id}`}>
@@ -23,6 +24,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                             fill
                             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                             className="object-cover"
+                            priority
                         />
                     )}
                 </div>
@@ -30,7 +32,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                 {/* Content */}
                 <div className="p-4 flex flex-col gap-1 flex-1 overflow-hidden">
                     <p className="text-xs font-semibold tracking-wide uppercase text-indigo-500 dark:text-indigo-300">
-                        {courseName && <span>{courseName}</span>}
+                        {courseName && <span className={cn(!courseAvailable && "text-zinc-400 dark:text-zinc-500")}>{courseName}</span>}
                         {courseName && project.year && <span> • </span>}
                         {project.year && <span>{project.year}</span>}
                     </p>

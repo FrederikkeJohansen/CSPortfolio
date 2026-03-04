@@ -14,8 +14,8 @@ export default async function ProjectPage({ params }: Props) {
     const { data, error } = await supabase
         .from('projects')
         .select(`
-    id, title, description, year, video_url, poster_url, visible, student_creators,
-    courses(id, name),
+    id, title, description, year, video_url, poster_url, visible, student_creators, keywords,
+    courses(id, name, available),
     project_images(image_url, display_order)
   `)
         .eq('id', id)
@@ -25,7 +25,7 @@ export default async function ProjectPage({ params }: Props) {
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-black ">
             <Navbar />
-            <div className="max-w-7xl mx-auto px-8 mb-8">
+            <div className="px-4 sm:px-8 mb-8">
                 <BackButton />
                 <div className="mb-4">
                     <ProjectImageDisplay
@@ -35,12 +35,23 @@ export default async function ProjectPage({ params }: Props) {
                 </div>
                 <div className="flex flex-col">
                     <p className="text-xs font-semibold tracking-wide uppercase text-indigo-500 dark:text-indigo-300 mb-1">
-                        {project?.courses?.name} <span> • </span> {project?.year}
+                        <span className={project?.courses?.available === false ? "text-zinc-400 dark:text-zinc-500" : ""}>
+                            {project?.courses?.name}
+                            {project?.courses && project.courses.available === false && (
+                                <span className="normal-case"> (course is no longer available)</span>
+                            )}
+                        </span>
+                        <span> • </span> {project?.year}
                     </p>
-                    <h1 className="text-2xl md:text-4xl font-bold text-zinc-800 dark:text-zinc-200 mb-4">{project?.title}</h1>
+                    <h1 className="text-2xl md:text-4xl font-bold text-zinc-800 dark:text-zinc-200 mb-2">{project?.title}</h1>
 
-                    <p className="text-sm xl:text-xl font-medium text-black dark:text-zinc-300 mb-1">{project?.description}</p>
-                    <p className="text-sm text-sm xl:text-xl text-black dark:text-white mb-1"><span className="uppercase tracking-wide font-bold text-black dark:text-white">Key Words: </span>Something</p>
+                    <p className="text-sm md:text-base 2xl:text-xl font-medium text-black dark:text-zinc-300 mb-1">{project?.description}</p>
+                    {project?.keywords?.length > 0 && (
+                        <p className="text-sm md:text-base 2xl:text-xl text-black dark:text-white mb-1">
+                            <span className="uppercase tracking-wide font-bold text-black dark:text-white">Key Words: </span>
+                            {project.keywords.map(kw => kw.charAt(0).toUpperCase() + kw.slice(1)).join(" • ")}
+                        </p>
+                    )}
 
                     <p className="text-sm font-bold text-zinc-500 dark:text-zinc-300 mt-4">Created by: {project?.student_creators}</p>
 

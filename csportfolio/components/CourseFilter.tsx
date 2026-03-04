@@ -25,8 +25,8 @@ export default function CourseFilter({ courses, selectedCourses, onToggle }: Pro
                             key={course.id}
                             onClick={() => onToggle(course.id)}
                             className={isActive
-                                ? "px-4 py-1.5 rounded-full text-xs md:text-base text-black dark:text-zinc-200 font-bold border-2 border-indigo-500 dark:border-indigo-400 bg-indigo-500 text-white transition-all active:scale-98 cursor-pointer"
-                                : "px-4 py-1.5 rounded-full text-xs md:text-base text-black dark:text-zinc-200 font-normal border-2 border-indigo-500 dark:border-indigo-400 hover:bg-indigo-500 hover:text-white transition-all active:scale-98 cursor-pointer"
+                                ? "px-4 py-1.5 rounded-full text-xs lg:text-base text-black dark:text-zinc-200 font-bold border-2 border-indigo-500 dark:border-indigo-400 bg-indigo-500 text-white transition-all active:scale-98 cursor-pointer"
+                                : "px-4 py-1.5 rounded-full text-xs lg:text-base text-black dark:text-zinc-200 font-normal border-2 border-indigo-500 dark:border-indigo-400 hover:bg-indigo-500 hover:text-white transition-all active:scale-98 cursor-pointer"
                             }
                         >
                             {course.name}

@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Project } from "@/types";
 import Image from "next/image";
 import Link from "next/link"
@@ -8,6 +11,7 @@ type ProjectCardProps = {
 }
 
 export default function ProjectCard({ project }: ProjectCardProps) {
+    const [loaded, setLoaded] = useState(false)
     const imageSrc = project.project_images?.[0]?.image_url ?? null
     const courseName = project.courses?.name ?? null
     const courseAvailable = project.courses?.available !== false
@@ -16,15 +20,20 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         <Link href={`/projects/${project.id}`}>
             <div className="h-[300px] md:h-[360px] xl:h-[400px] bg-indigo-100 dark:bg-zinc-900 rounded-xl overflow-hidden shadow flex flex-col">
                 {/* Image */}
-                <div className="relative w-full h-36 md:h-44 xl:h-48">
+                <div className="relative w-full h-36 md:h-44 xl:h-48 bg-zinc-200 dark:bg-zinc-800">
+                    {!loaded && (
+                        <div className="absolute inset-0 overflow-hidden">
+                            <div className="absolute inset-0 -translate-x-full animate-[shimmer_2.4s_infinite] bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/15" />
+                        </div>
+                    )}
                     {imageSrc && (
                         <Image
                             src={imageSrc}
                             alt={project.title}
                             fill
                             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                            className="object-cover"
-                            priority
+                            className={cn("object-cover transition-opacity duration-500", loaded ? "opacity-100" : "opacity-0")}
+                            onLoad={() => setLoaded(true)}
                         />
                     )}
                 </div>

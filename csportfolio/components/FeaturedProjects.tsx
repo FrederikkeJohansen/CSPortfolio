@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import useEmblaCarousel from "embla-carousel-react"
 import AutoScroll from "embla-carousel-auto-scroll"
 import Image from "next/image"
@@ -12,6 +12,29 @@ type Props = {
 }
 
 const MIN_VISIBLE = 20
+
+function FeaturedImage({ src, alt }: { src: string; alt: string }) {
+    const [loaded, setLoaded] = useState(false)
+
+    return (
+        <div className="relative aspect-square overflow-hidden rounded-2xl bg-zinc-200 dark:bg-zinc-800">
+            {!loaded && (
+                <div className="absolute inset-0 overflow-hidden rounded-2xl">
+                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2.4s_infinite] bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/15" />
+                </div>
+            )}
+            <Image
+                src={src}
+                alt={alt}
+                fill
+                className={`object-cover transition-[transform,opacity] duration-500 hover:scale-105 ${loaded ? "opacity-100" : "opacity-0"}`}
+                sizes="(max-width: 640px) 160px, (max-width: 768px) 192px, 224px"
+                draggable={false}
+                onLoad={() => setLoaded(true)}
+            />
+        </div>
+    )
+}
 
 export default function FeaturedProjects({ projects }: Props) {
     const plugin = useRef(
@@ -56,16 +79,7 @@ export default function FeaturedProjects({ projects }: Props) {
                             href={`/projects/${project.id}`}
                             className="flex-none w-40 sm:w-48 md:w-56"
                         >
-                            <div className="relative aspect-square overflow-hidden rounded-2xl">
-                                <Image
-                                    src={firstImage.image_url}
-                                    alt={project.title}
-                                    fill
-                                    className="object-cover transition-transform duration-300 hover:scale-105"
-                                    sizes="(max-width: 640px) 160px, (max-width: 768px) 192px, 224px"
-                                    draggable={false}
-                                />
-                            </div>
+                            <FeaturedImage src={firstImage.image_url} alt={project.title} />
                         </Link>
                     )
                 })}

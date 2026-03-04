@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 import { Course, ImageEntry, UploadFormData } from "@/types"
+import { Loader2 } from "lucide-react"
 import ImageManagerModal from "./ImageManagerModal"
 
 type Props = {
@@ -825,13 +826,13 @@ export default function UploadModal({ open, onClose }: Props) {
                                 onClick={handleSubmit}
                                 disabled={submitting || !formData.consent || !formData.passphrase.trim()}
                                 className={cn(
-                                    "px-5 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer",
+                                    "inline-flex items-center justify-center px-5 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer min-w-[140px]",
                                     formData.consent && formData.passphrase.trim() && !submitting
                                         ? "bg-indigo-500 text-white hover:bg-indigo-600 "
                                         : "bg-zinc-300 text-zinc-500 cursor-not-allowed"
                                 )}
                             >
-                                {submitting ? "Submitting..." : "Submit project"}
+                                {submitting ? <Loader2 className="animate-spin h-5 w-5" /> : "Submit project"}
                             </button>
                         )}
                     </div>

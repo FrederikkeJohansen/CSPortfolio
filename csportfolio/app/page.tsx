@@ -15,7 +15,7 @@ export default async function Home() {
     .from('projects')
     .select(`
   id, title, description, year, video_url, poster_url,
-  featured, visible, student_creators,
+  featured, visible, student_creators, keywords,
   display_order, created_at,
   courses(id, name, available),
   project_images(image_url, display_order)

@@ -14,7 +14,7 @@ export default async function ProjectPage({ params }: Props) {
     const { data, error } = await supabase
         .from('projects')
         .select(`
-    id, title, description, year, video_url, poster_url, visible, student_creators,
+    id, title, description, year, video_url, poster_url, visible, student_creators, keywords,
     courses(id, name, available),
     project_images(image_url, display_order)
   `)
@@ -46,7 +46,12 @@ export default async function ProjectPage({ params }: Props) {
                     <h1 className="text-2xl md:text-4xl font-bold text-zinc-800 dark:text-zinc-200 mb-2">{project?.title}</h1>
 
                     <p className="text-sm md:text-base 2xl:text-xl font-medium text-black dark:text-zinc-300 mb-1">{project?.description}</p>
-                    <p className="text-sm md:text-base 2xl:text-xl text-black dark:text-white mb-1"><span className="uppercase tracking-wide font-bold text-black dark:text-white">Key Words: </span>Something</p>
+                    {project?.keywords?.length > 0 && (
+                        <p className="text-sm md:text-base 2xl:text-xl text-black dark:text-white mb-1">
+                            <span className="uppercase tracking-wide font-bold text-black dark:text-white">Key Words: </span>
+                            {project.keywords.map(kw => kw.charAt(0).toUpperCase() + kw.slice(1)).join(" • ")}
+                        </p>
+                    )}
 
                     <p className="text-sm font-bold text-zinc-500 dark:text-zinc-300 mt-4">Created by: {project?.student_creators}</p>
 

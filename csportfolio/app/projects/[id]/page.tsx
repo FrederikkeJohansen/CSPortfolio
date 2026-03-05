@@ -53,7 +53,7 @@ export default async function ProjectPage({ params }: Props) {
                             </p>
                         )}
 
-                        <p className="text-sm font-bold text-zinc-500 dark:text-zinc-300 mt-4">Created by: {student_creators}</p>
+                        <p className="text-sm font-bold text-zinc-500 dark:text-zinc-300 mt-4">Created by: {student_creators ?? "Anonymous"}</p>
 
                         <div className="flex flex-row gap-4 text-sm md:text-base font-medium mt-4">
                             {video_url ? (

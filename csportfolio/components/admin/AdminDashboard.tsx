@@ -3,6 +3,7 @@
 import { AdminProject } from '@/types'
 import { Course } from '@/types'
 import { signOut } from '@/app/admin/actions'
+import { ProjectsTab } from '@/components/admin/ProjectsTab'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -36,7 +37,7 @@ export function AdminDashboard({ projects, courses, passphrases }: Props) {
             <TabsTrigger value="passphrases">Passphrases ({passphrases.length})</TabsTrigger>
           </TabsList>
           <TabsContent value="projects">
-            <p className="text-zinc-600 dark:text-zinc-400 py-4">Projects tab coming next...</p>
+            <ProjectsTab projects={projects} />
           </TabsContent>
           <TabsContent value="courses">
             <p className="text-zinc-600 dark:text-zinc-400 py-4">Courses tab coming next...</p>

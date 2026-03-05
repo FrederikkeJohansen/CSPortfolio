@@ -1,5 +1,4 @@
-import { supabase } from "@/lib/supabase"
-import { Project } from "@/types"
+import { getProject } from "@/lib/queries"
 import ProjectImageDisplay from "@/components/ProjectImageDisplay"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
@@ -12,16 +11,7 @@ type Props = {
 
 export default async function ProjectPage({ params }: Props) {
     const { id } = await params
-    const { data, error } = await supabase
-        .from('projects')
-        .select(`
-    id, title, description, year, video_url, poster_url, visible, student_creators, keywords,
-    courses(id, name, available),
-    project_images(image_url, display_order)
-  `)
-        .eq('id', id)
-        .single()  // ← returns one object instead of an array
-    const project = data as unknown as Project
+    const project = await getProject(id)
 
     if (!project) {
         return <div className="min-h-screen bg-zinc-50 dark:bg-black flex items-center justify-center text-zinc-500">Project not found</div>
@@ -63,7 +53,7 @@ export default async function ProjectPage({ params }: Props) {
                             </p>
                         )}
 
-                        <p className="text-sm font-bold text-zinc-500 dark:text-zinc-300 mt-4">Created by: {student_creators}</p>
+                        <p className="text-sm font-bold text-zinc-500 dark:text-zinc-300 mt-4">Created by: {student_creators ?? "Anonymous"}</p>
 
                         <div className="flex flex-row gap-4 text-sm md:text-base font-medium mt-4">
                             {video_url ? (

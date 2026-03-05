@@ -1,9 +1,11 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
+import { getCourses } from "@/lib/queries"
+import { validatePassphrase, uploadFile, createProject, uploadProjectImages } from "@/lib/mutations"
 import { Course, ImageEntry, UploadFormData } from "@/types"
+import { Loader2 } from "lucide-react"
 import ImageManagerModal from "./ImageManagerModal"
 
 type Props = {
@@ -54,10 +56,8 @@ export default function UploadModal({ open, onClose }: Props) {
     useEffect(() => {
         if (!open) return
         const fetchData = async () => {
-            const [coursesRes] = await Promise.all([
-                supabase.from("courses").select("id, name, available").order("name"),
-            ])
-            if (coursesRes.data) setCourses(coursesRes.data.filter(c => c.available))
+            const courses = await getCourses()
+            setCourses(courses)
         }
         fetchData()
     }, [open])
@@ -127,7 +127,8 @@ export default function UploadModal({ open, onClose }: Props) {
         if (!formData.title.trim()) { fields.add("title"); parts.push("title") }
         if (!formData.description.trim()) { fields.add("description"); parts.push("description") }
         const year = parseInt(formData.year)
-        if (!formData.year || isNaN(year) || year < 1900 || year > 2200) { fields.add("year"); parts.push("a valid year") }
+        const currentYear = new Date().getFullYear()
+        if (!formData.year || isNaN(year) || year < 1900 || year > currentYear) { fields.add("year"); parts.push(`a valid year (no higher than ${currentYear})`) }
         if (!formData.course_id) { fields.add("course_id"); parts.push("a course") }
         if (formData.image_files.length === 0) { fields.add("image_files"); parts.push("at least one image") }
         if (parts.length === 0) return { error: null, fields: new Set() }
@@ -169,14 +170,8 @@ export default function UploadModal({ open, onClose }: Props) {
         setSubmitting(true)
         try {
             // 1. Validate passphrase
-            const { data: passphraseMatch } = await supabase
-                .from("passphrases")
-                .select("id")
-                .eq("value", formData.passphrase.trim())
-                .eq("active", true)
-                .limit(1)
-
-            if (!passphraseMatch || passphraseMatch.length === 0) {
+            const isValid = await validatePassphrase(formData.passphrase)
+            if (!isValid) {
                 setError("Invalid passphrase")
                 setSubmitting(false)
                 return
@@ -185,71 +180,26 @@ export default function UploadModal({ open, onClose }: Props) {
             // 2. Upload poster if provided
             let posterUrl: string | null = null
             if (formData.poster_file) {
-                const fileExt = formData.poster_file.name.split(".").pop()
-                const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
-                const { error: uploadError } = await supabase.storage
-                    .from("project-poster")
-                    .upload(fileName, formData.poster_file)
-
-                if (uploadError) throw new Error("Failed to upload poster: " + uploadError.message)
-
-                const { data: urlData } = supabase.storage.from("project-poster").getPublicUrl(fileName)
-                posterUrl = urlData.publicUrl
+                posterUrl = await uploadFile("project-poster", formData.poster_file)
             }
 
             // 3. Insert project
-            const projectId = crypto.randomUUID()
-
-            const { error: insertError } = await supabase
-                .from("projects")
-                .insert({
-                    id: projectId,
-                    title: formData.title.trim(),
-                    description: formData.description.trim(),
-                    year: parseInt(formData.year),
-                    video_url: formData.video_url.trim() || null,
-                    poster_url: posterUrl,
-                    student_creators: formData.student_creators.trim() || null,
-                    course_id: formData.course_id,
-                    student_name: formData.student_name.trim(),
-                    student_email: formData.student_email.trim(),
-                    student_number: formData.student_number.trim(),
-                    keywords: formData.keywords,
-                    visible: false,
-                })
-
-            if (insertError) throw new Error("Failed to submit project: " + insertError.message)
+            const projectId = await createProject({
+                title: formData.title.trim(),
+                description: formData.description.trim(),
+                year: parseInt(formData.year),
+                video_url: formData.video_url.trim() || null,
+                poster_url: posterUrl,
+                student_creators: formData.student_creators.trim() || null,
+                course_id: formData.course_id,
+                student_name: formData.student_name.trim(),
+                student_email: formData.student_email.trim(),
+                student_number: formData.student_number.trim(),
+                keywords: formData.keywords,
+            })
 
             // 4. Upload images
-            if (formData.image_files.length > 0) {
-                const imageRows = []
-                for (let i = 0; i < formData.image_files.length; i++) {
-                    const img = formData.image_files[i]
-                    const fileExt = img.file.name.split(".").pop()
-                    const fileName = `${projectId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
-                    const { error: imgUploadError } = await supabase.storage
-                        .from("project-images")
-                        .upload(fileName, img.file)
-
-                    if (imgUploadError) throw new Error("Failed to upload image: " + imgUploadError.message)
-
-                    const { data: imgUrlData } = supabase.storage.from("project-images").getPublicUrl(fileName)
-
-                    // Primary image gets display_order 0, rest follow
-                    const order = i === formData.primary_image_index ? 0 : (i < formData.primary_image_index ? i + 1 : i)
-                    imageRows.push({
-                        project_id: projectId,
-                        image_url: imgUrlData.publicUrl,
-                        display_order: order,
-                    })
-                }
-
-                const { error: imgInsertError } = await supabase
-                    .from("project_images")
-                    .insert(imageRows)
-
-                if (imgInsertError) throw new Error("Failed to save image records: " + imgInsertError.message)
-            }
+            await uploadProjectImages(projectId, formData.image_files, formData.primary_image_index)
 
             setSuccess(true)
         } catch (err) {
@@ -512,7 +462,7 @@ export default function UploadModal({ open, onClose }: Props) {
                                         type="number"
                                         placeholder={String(new Date().getFullYear())}
                                         min={1990}
-                                        max={2300}
+                                        max={new Date().getFullYear()}
                                         value={formData.year}
                                         onChange={e => update("year", e.target.value)}
                                         className={inputClass}
@@ -825,13 +775,20 @@ export default function UploadModal({ open, onClose }: Props) {
                                 onClick={handleSubmit}
                                 disabled={submitting || !formData.consent || !formData.passphrase.trim()}
                                 className={cn(
-                                    "px-5 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer",
+                                    "inline-flex items-center justify-center px-5 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer min-w-[140px]",
                                     formData.consent && formData.passphrase.trim() && !submitting
                                         ? "bg-indigo-500 text-white hover:bg-indigo-600 "
                                         : "bg-zinc-300 text-zinc-500 cursor-not-allowed"
                                 )}
                             >
-                                {submitting ? "Submitting..." : "Submit project"}
+                                {submitting ? (
+                                    <>
+                                        <Loader2 className="animate-spin h-5 w-5" aria-hidden="true" />
+                                        <span className="ml-2">Submitting…</span>
+                                    </>
+                                ) : (
+                                    "Submit project"
+                                )}
                             </button>
                         )}
                     </div>

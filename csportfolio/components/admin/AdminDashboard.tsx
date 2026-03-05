@@ -41,7 +41,7 @@ export function AdminDashboard({ projects, courses, passphrases }: Props) {
             <ProjectsTab projects={projects} />
           </TabsContent>
           <TabsContent value="courses">
-            <p className="text-zinc-600 dark:text-zinc-400 py-4">Courses tab coming next...</p>
+            <CoursesTab courses={courses} />
           </TabsContent>
           <TabsContent value="passphrases">
             <p className="text-zinc-600 dark:text-zinc-400 py-4">Passphrases tab coming next...</p>

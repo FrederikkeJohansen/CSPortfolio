@@ -1,5 +1,4 @@
-import { supabase } from "@/lib/supabase";
-import { Project } from "@/types";
+import { getProjects, getCourses } from "@/lib/queries";
 import Navbar from "@/components/Navbar";
 import FeaturedProjects from "@/components/FeaturedProjects";
 import Hero from "@/components/Hero";
@@ -8,26 +7,10 @@ import Footer from "@/components/Footer";
 import SearchModal from "@/components/SearchModal";
 
 export default async function Home() {
-  // Fetch courses for filter options
-  const { data: coursesData } = await supabase.from('courses').select('id, name, available').order('name', { ascending: true });
-  const courses = (coursesData ?? []).filter(c => c.available);
-  // Fetch projects with related data
-  const { data: projects, error } = await supabase
-    .from('projects')
-    .select(`
-  id, title, description, year, video_url, poster_url,
-  featured, visible, student_creators, keywords,
-  display_order, created_at,
-  courses(id, name, available),
-  project_images(image_url, display_order)
-`)
-    .eq('visible', true)
-    .order('display_order', { ascending: true })
-    .order('created_at', { ascending: false });
-  if (error) {
-    console.error('Failed to fetch projects:', error)
-  }
-  const allProjects = (projects as unknown as Project[]) ?? [];
+  const [allProjects, courses] = await Promise.all([
+    getProjects(),
+    getCourses(),
+  ]);
   const featuredProjects = allProjects.filter(p => p.featured);
   return (
     <>
@@ -38,7 +21,7 @@ export default async function Home() {
           <Hero />
           <ProjectsSelection
             projects={allProjects}
-            courses={courses ?? []}
+            courses={courses}
           />
         </main>
         <Footer />

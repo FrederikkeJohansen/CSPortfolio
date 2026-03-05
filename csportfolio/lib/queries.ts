@@ -1,0 +1,55 @@
+import { supabase } from "@/lib/supabase"
+import { Course, Project } from "@/types"
+
+const PROJECT_SELECT = `
+  id, title, description, year, video_url, poster_url,
+  featured, visible, student_creators, keywords,
+  display_order, created_at,
+  courses(id, name, available),
+  project_images(image_url, display_order)
+`
+
+export async function getProjects(): Promise<Project[]> {
+    const { data, error } = await supabase
+        .from("projects")
+        .select(PROJECT_SELECT)
+        .eq("visible", true)
+        .order("display_order", { ascending: true })
+        .order("created_at", { ascending: false })
+
+    if (error) {
+        console.error("Failed to fetch projects:", error)
+        return []
+    }
+
+    return (data as unknown as Project[]) ?? []
+}
+
+export async function getProject(id: string): Promise<Project | null> {
+    const { data, error } = await supabase
+        .from("projects")
+        .select(`
+            id, title, description, year, video_url, poster_url,
+            visible, student_creators, keywords,
+            courses(id, name, available),
+            project_images(image_url, display_order)
+        `)
+        .eq("id", id)
+        .single()
+
+    if (error) {
+        console.error("Failed to fetch project:", error)
+        return null
+    }
+
+    return data as unknown as Project
+}
+
+export async function getCourses(): Promise<Course[]> {
+    const { data } = await supabase
+        .from("courses")
+        .select("id, name, available")
+        .order("name", { ascending: true })
+
+    return ((data ?? []) as Course[]).filter(c => c.available)
+}

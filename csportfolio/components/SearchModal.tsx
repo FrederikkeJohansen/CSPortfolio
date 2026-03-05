@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react"
 import { useSearch } from "@/providers/SearchProvider"
-import { supabase } from "@/lib/supabase"
+import { getProjects } from "@/lib/queries"
 import { Project } from "@/types"
 import ProjectCard from "@/components/ProjectCard"
 
@@ -23,20 +23,8 @@ export default function SearchModal({ projects: propProjects }: Props) {
         if (fetchedProjects) return
 
         const fetchData = async () => {
-            const { data } = await supabase
-                .from("projects")
-                .select(`
-                    id, title, description, year, video_url, poster_url,
-                    featured, visible, student_creators, keywords,
-                    display_order, created_at,
-                    courses(id, name, available),
-                    project_images(image_url, display_order)
-                `)
-                .eq("visible", true)
-                .order("display_order", { ascending: true })
-                .order("created_at", { ascending: false })
-
-            if (data) setFetchedProjects(data as unknown as Project[])
+            const data = await getProjects()
+            if (data.length > 0) setFetchedProjects(data)
         }
         fetchData()
     }, [isSearchOpen, propProjects, fetchedProjects])

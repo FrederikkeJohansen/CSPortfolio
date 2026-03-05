@@ -1,3 +1,6 @@
+import Link from 'next/link'
+import { Settings } from 'lucide-react'
+
 export default function Footer() {
     return (
         <footer className="w-full bg-gray-50 dark:bg-black border-t border-zinc-200 dark:border-zinc-900">
@@ -75,10 +78,13 @@ export default function Footer() {
                         </div>
                     </div>
                 </div>
-                <div className="border-t border-zinc-200 dark:border-zinc-900 pt-4 flex flex-col items-center">
+                <div className="border-t border-zinc-200 dark:border-zinc-900 pt-4 flex items-center justify-center gap-2">
                     <p className="text-xs text-zinc-400 dark:text-zinc-300">
                         &copy; {new Date().getFullYear()} CS Portfolio. All rights reserved.
                     </p>
+                    <Link href="/admin" aria-label="Admin" className="text-zinc-300 dark:text-zinc-600 hover:text-zinc-500 dark:hover:text-zinc-400 transition-colors">
+                        <Settings className="w-3.5 h-3.5" />
+                    </Link>
                 </div>
             </div>
         </footer >

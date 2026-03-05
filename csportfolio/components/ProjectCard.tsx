@@ -13,7 +13,8 @@ type ProjectCardProps = {
 export default function ProjectCard({ project }: ProjectCardProps) {
     const [loaded, setLoaded] = useState(false)
     const { id, title, description, year, student_creators, courses, project_images } = project
-    const imageSrc = project_images?.[0]?.image_url ?? null
+    const sortedImages = [...(project_images ?? [])].sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+    const imageSrc = sortedImages[0]?.image_url ?? null
     const courseName = courses?.name ?? null
     const courseAvailable = courses?.available !== false
 

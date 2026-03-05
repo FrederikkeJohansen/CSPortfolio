@@ -1,13 +1,16 @@
 'use server'
 
 import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { createSupabaseAdminClient } from '@/lib/supabase-admin'
 import { revalidatePath } from 'next/cache'
 
 async function requireAuth() {
+  // Verify the user is authenticated via cookie session
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
-  return supabase
+  // Return admin client (service role) that bypasses RLS
+  return createSupabaseAdminClient()
 }
 
 // ── Projects ──

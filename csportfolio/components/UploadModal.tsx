@@ -781,7 +781,14 @@ export default function UploadModal({ open, onClose }: Props) {
                                         : "bg-zinc-300 text-zinc-500 cursor-not-allowed"
                                 )}
                             >
-                                {submitting ? <Loader2 className="animate-spin h-5 w-5" /> : "Submit project"}
+                                {submitting ? (
+                                    <>
+                                        <Loader2 className="animate-spin h-5 w-5" aria-hidden="true" />
+                                        <span className="ml-2">Submitting…</span>
+                                    </>
+                                ) : (
+                                    "Submit project"
+                                )}
                             </button>
                         )}
                     </div>

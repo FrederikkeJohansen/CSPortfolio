@@ -127,7 +127,8 @@ export default function UploadModal({ open, onClose }: Props) {
         if (!formData.title.trim()) { fields.add("title"); parts.push("title") }
         if (!formData.description.trim()) { fields.add("description"); parts.push("description") }
         const year = parseInt(formData.year)
-        if (!formData.year || isNaN(year) || year < 1900 || year > 2200) { fields.add("year"); parts.push("a valid year") }
+        const currentYear = new Date().getFullYear()
+        if (!formData.year || isNaN(year) || year < 1900 || year > currentYear) { fields.add("year"); parts.push(`a valid year (no higher than ${currentYear})`) }
         if (!formData.course_id) { fields.add("course_id"); parts.push("a course") }
         if (formData.image_files.length === 0) { fields.add("image_files"); parts.push("at least one image") }
         if (parts.length === 0) return { error: null, fields: new Set() }
@@ -461,7 +462,7 @@ export default function UploadModal({ open, onClose }: Props) {
                                         type="number"
                                         placeholder={String(new Date().getFullYear())}
                                         min={1990}
-                                        max={2300}
+                                        max={new Date().getFullYear()}
                                         value={formData.year}
                                         onChange={e => update("year", e.target.value)}
                                         className={inputClass}

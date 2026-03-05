@@ -46,10 +46,14 @@ export async function getProject(id: string): Promise<Project | null> {
 }
 
 export async function getCourses(): Promise<Course[]> {
-    const { data } = await supabase
+    const { data, error } = await supabase
         .from("courses")
         .select("id, name, available")
         .order("name", { ascending: true })
 
+    if (error) {
+        console.error("Failed to fetch courses:", error)
+        return []
+    }
     return ((data ?? []) as Course[]).filter(c => c.available)
 }

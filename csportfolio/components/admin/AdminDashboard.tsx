@@ -5,6 +5,7 @@ import { Course } from '@/types'
 import { signOut } from '@/app/admin/actions'
 import { ProjectsTab } from '@/components/admin/ProjectsTab'
 import { CoursesTab } from '@/components/admin/CoursesTab'
+import { PassphrasesTab } from '@/components/admin/PassphrasesTab'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -44,7 +45,7 @@ export function AdminDashboard({ projects, courses, passphrases }: Props) {
             <CoursesTab courses={courses} />
           </TabsContent>
           <TabsContent value="passphrases">
-            <p className="text-zinc-600 dark:text-zinc-400 py-4">Passphrases tab coming next...</p>
+            <PassphrasesTab passphrases={passphrases} />
           </TabsContent>
         </Tabs>
       </main>

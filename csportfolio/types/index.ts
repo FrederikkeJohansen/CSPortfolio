@@ -49,3 +49,9 @@ export type Project = {
   project_images: ProjectImage[]
   keywords: string[]
 }
+
+export type AdminProject = Project & {
+  student_name: string | null
+  student_email: string | null
+  student_number: string | null
+}

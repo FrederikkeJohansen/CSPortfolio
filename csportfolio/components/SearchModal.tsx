@@ -161,7 +161,9 @@ export default function SearchModal({ projects: propProjects }: Props) {
                         </p>
                         <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
                             {filteredProjects.map(project => (
-                                <ProjectCard key={project.id} project={project} />
+                                <div key={project.id} onClick={closeSearch}>
+                                    <ProjectCard project={project} />
+                                </div>
                             ))}
                         </div>
                     </>

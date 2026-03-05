@@ -2,13 +2,16 @@ import { supabase } from "@/lib/supabase"
 import { ImageEntry } from "@/types"
 
 export async function validatePassphrase(passphrase: string): Promise<boolean> {
-    const { data } = await supabase
+    const { data, error } = await supabase
         .from("passphrases")
         .select("id")
         .eq("value", passphrase.trim())
         .eq("active", true)
         .limit(1)
 
+    if (error) {
+        throw new Error("Failed to validate passphrase: " + error.message)
+    }
     return !!data && data.length > 0
 }
 

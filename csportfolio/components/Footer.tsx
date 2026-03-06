@@ -82,8 +82,8 @@ export default function Footer() {
                     <p className="text-xs text-zinc-400 dark:text-zinc-300">
                         &copy; {new Date().getFullYear()} CS Portfolio. All rights reserved.
                     </p>
-                    <Link href="/admin" aria-label="Admin" className="text-zinc-300 dark:text-zinc-600 hover:text-zinc-500 dark:hover:text-zinc-400 transition-colors">
-                        <Settings className="w-3.5 h-3.5" />
+                    <Link href="/admin" aria-label="Admin" className="text-zinc-400 dark:text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-400 transition-colors">
+                        <Settings className="w-4 h-4" />
                     </Link>
                 </div>
             </div>

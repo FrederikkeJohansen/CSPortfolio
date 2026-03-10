@@ -64,7 +64,7 @@ const ADMIN_PROJECT_SELECT = `
   id, title, description, year, video_url, poster_url,
   featured, visible, student_creators, keywords,
   display_order, created_at,
-  student_name, student_email, student_number, passphrase_used,
+  student_name, student_email, student_number, passphrase_used, reviewed, last_edited_by,
   courses(id, name, available),
   project_images(image_url, display_order)
 `

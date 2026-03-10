@@ -5,39 +5,47 @@ import { createSupabaseAdminClient } from '@/lib/supabase-admin'
 import { revalidatePath } from 'next/cache'
 
 async function requireAuth() {
-  // Verify the user is authenticated via cookie session for every mutation (toggle, delete, create, edit), so even if someone bypasses middleware, they can't change data.
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
-  // Return admin client (service role) that bypasses RLS
-  return createSupabaseAdminClient()
+  return { supabase: createSupabaseAdminClient(), email: user.email ?? 'unknown' }
 }
 
 // ── Projects ──
 
 export async function toggleProjectVisible(id: string, visible: boolean) {
-  const supabase = await requireAuth()
-  const { error } = await supabase.from('projects').update({ visible }).eq('id', id)
+  const { supabase, email } = await requireAuth()
+  const update = visible
+    ? { visible, reviewed: true, last_edited_by: email }
+    : { visible, last_edited_by: email }
+  const { error } = await supabase.from('projects').update(update).eq('id', id)
+  if (error) throw new Error(error.message)
+  revalidatePath('/admin')
+}
+
+export async function dismissProject(id: string) {
+  const { supabase, email } = await requireAuth()
+  const { error } = await supabase.from('projects').update({ reviewed: true, last_edited_by: email }).eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin')
 }
 
 export async function toggleProjectFeatured(id: string, featured: boolean) {
-  const supabase = await requireAuth()
-  const { error } = await supabase.from('projects').update({ featured }).eq('id', id)
+  const { supabase, email } = await requireAuth()
+  const { error } = await supabase.from('projects').update({ featured, last_edited_by: email }).eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin')
 }
 
 export async function updateDisplayOrder(id: string, displayOrder: number) {
-  const supabase = await requireAuth()
-  const { error } = await supabase.from('projects').update({ display_order: displayOrder }).eq('id', id)
+  const { supabase, email } = await requireAuth()
+  const { error } = await supabase.from('projects').update({ display_order: displayOrder, last_edited_by: email }).eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin')
 }
 
 export async function deleteProject(id: string) {
-  const supabase = await requireAuth()
+  const { supabase } = await requireAuth()
   const { error } = await supabase.from('projects').delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin')
@@ -46,14 +54,14 @@ export async function deleteProject(id: string) {
 // ── Courses ──
 
 export async function toggleCourseAvailable(id: string, available: boolean) {
-  const supabase = await requireAuth()
+  const { supabase } = await requireAuth()
   const { error } = await supabase.from('courses').update({ available }).eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin')
 }
 
 export async function createCourse(name: string) {
-  const supabase = await requireAuth()
+  const { supabase } = await requireAuth()
   const { error } = await supabase.from('courses').insert({ name, available: true })
   if (error) throw new Error(error.message)
   revalidatePath('/admin')
@@ -62,21 +70,21 @@ export async function createCourse(name: string) {
 // ── Passphrases ──
 
 export async function createPassphrase(value: string) {
-  const supabase = await requireAuth()
+  const { supabase } = await requireAuth()
   const { error } = await supabase.from('passphrases').insert({ value, active: true })
   if (error) throw new Error(error.message)
   revalidatePath('/admin')
 }
 
 export async function updatePassphrase(id: string, value: string) {
-  const supabase = await requireAuth()
+  const { supabase } = await requireAuth()
   const { error } = await supabase.from('passphrases').update({ value }).eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin')
 }
 
 export async function deletePassphrase(id: string) {
-  const supabase = await requireAuth()
+  const { supabase } = await requireAuth()
   const { error } = await supabase.from('passphrases').delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin')

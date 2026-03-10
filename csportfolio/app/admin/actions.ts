@@ -5,7 +5,7 @@ import { createSupabaseAdminClient } from '@/lib/supabase-admin'
 import { revalidatePath } from 'next/cache'
 
 async function requireAuth() {
-  // Verify the user is authenticated via cookie session
+  // Verify the user is authenticated via cookie session for every mutation (toggle, delete, create, edit), so even if someone bypasses middleware, they can't change data.
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
@@ -86,4 +86,11 @@ export async function signOut() {
   const supabase = await createSupabaseServerClient()
   await supabase.auth.signOut()
   revalidatePath('/', 'layout')
+}
+
+export async function checkUserExists(email: string): Promise<boolean> {
+  const supabase = createSupabaseAdminClient()
+  const { data: { users }, error } = await supabase.auth.admin.listUsers()
+  if (error) return false
+  return users.some(u => u.email?.toLowerCase() === email.toLowerCase())
 }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser'
+import { checkUserExists } from '@/app/admin/actions'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,7 +24,8 @@ export default function AdminLoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      setError(error.message)
+      const userExists = await checkUserExists(email)
+      setError(userExists ? 'Incorrect password.' : 'No account found with this email address.')
       setLoading(false)
       return
     }
@@ -36,6 +38,7 @@ export default function AdminLoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black">
       <form onSubmit={handleLogin} className="w-full max-w-sm space-y-4 p-8 bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
         <h1 className="text-xl font-bold text-center text-zinc-900 dark:text-zinc-100">Admin Login</h1>
+        <p text->This is only for admins who are responsible for maintaining this portfolio. In case of any issues logging in, please contact an admin with access to the database.  </p>
 
         {error && (
           <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>

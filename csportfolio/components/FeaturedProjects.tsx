@@ -11,7 +11,7 @@ type Props = {
     projects: Project[]
 }
 
-const MIN_VISIBLE = 15
+const MIN_VISIBLE = 24
 
 function FeaturedImage({ src, alt }: { src: string; alt: string }) {
     const [loaded, setLoaded] = useState(false)

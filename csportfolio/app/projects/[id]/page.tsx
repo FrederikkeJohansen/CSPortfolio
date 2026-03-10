@@ -45,7 +45,7 @@ export default async function ProjectPage({ params }: Props) {
                         </p>
                         <h1 className="text-2xl md:text-4xl font-bold text-zinc-800 dark:text-zinc-200 mb-2">{title}</h1>
 
-                        <p className="text-sm md:text-base 2xl:text-xl font-medium text-black dark:text-zinc-300 mb-1">{description}</p>
+                        <p className="text-sm md:text-base 2xl:text-xl font-medium text-black dark:text-zinc-300 mb-1 whitespace-pre-line">{description}</p>
                         {keywords?.length > 0 && (
                             <p className="text-sm md:text-base 2xl:text-xl text-black dark:text-white mb-1">
                                 <span className="uppercase tracking-wide font-bold text-black dark:text-white">Key Words: </span>

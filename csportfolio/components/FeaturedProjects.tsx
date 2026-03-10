@@ -11,7 +11,7 @@ type Props = {
     projects: Project[]
 }
 
-const MIN_VISIBLE = 20
+const MIN_VISIBLE = 15
 
 function FeaturedImage({ src, alt }: { src: string; alt: string }) {
     const [loaded, setLoaded] = useState(false)
@@ -57,9 +57,9 @@ export default function FeaturedProjects({ projects }: Props) {
     const items =
         projects.length < MIN_VISIBLE
             ? Array.from(
-                  { length: Math.ceil(MIN_VISIBLE / projects.length) },
-                  () => projects
-              ).flat()
+                { length: Math.ceil(MIN_VISIBLE / projects.length) },
+                () => projects
+            ).flat()
             : projects
 
     return (

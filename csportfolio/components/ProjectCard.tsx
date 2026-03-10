@@ -20,7 +20,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
     return (
         <Link href={`/projects/${id}`}>
-            <div className="h-[300px] md:h-[360px] xl:h-[400px] bg-indigo-100 dark:bg-zinc-900 rounded-xl overflow-hidden shadow flex flex-col">
+            <div className="h-[300px] md:h-[360px] xl:h-[400px] bg-indigo-100 dark:bg-zinc-800 rounded-xl overflow-hidden shadow flex flex-col">
                 {/* Image */}
                 <div className="relative w-full h-36 md:h-44 xl:h-48 bg-zinc-200 dark:bg-zinc-800">
                     {!loaded && (
@@ -55,7 +55,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                         </p>
                     )}
                     <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200 mt-auto pt-2 truncate">
-                        Created by: {student_creators ?? "Anonymous"}
+                        Created by: {student_creators}
                     </p>
                 </div>
             </div>

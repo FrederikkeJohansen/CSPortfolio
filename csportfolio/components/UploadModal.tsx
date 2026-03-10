@@ -142,7 +142,7 @@ export default function UploadModal({ open, onClose }: Props) {
         const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
         if (!emailRegex.test(formData.student_email.trim())) { fields.add("student_email"); parts.push("a valid email") }
         const num = formData.student_number.trim()
-        const validNumber = /^\d{9}$/.test(num) || /^[Aa][Uu]\d{6}$/.test(num)
+        const validNumber = /^(AU)?\d+$/i.test(num)
         if (!validNumber) { fields.add("student_number"); parts.push("a valid student number") }
         if (parts.length === 0) return { error: null, fields: new Set() }
         return { error: formatErrorList(parts), fields }
@@ -220,11 +220,11 @@ export default function UploadModal({ open, onClose }: Props) {
                 <div className="relative bg-indigo-50 dark:bg-zinc-900 rounded-2xl p-8 w-full max-w-lg mx-4 text-center">
                     <h2 className="text-xl font-bold mb-2">Project submitted!</h2>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                        Your project has been submitted for review. An admin will approve it shortly.
+                        It will be visible once an administrator has approved it. If you made a mistake, please upload a new version and contact an administrator to delete the incorrect submission. The administrator’s email is available in the bottom of this website.
                     </p>
                     <button
                         onClick={onClose}
-                        className="bg-indigo-500 text-white rounded-full px-6 py-2 text-sm font-semibold hover:bg-indigo-600 transition-colors"
+                        className="bg-indigo-500 text-white rounded-full px-6 py-2 text-sm font-semibold hover:bg-indigo-600 transition-colors cursor-pointer"
                     >
                         Close
                     </button>
@@ -362,8 +362,8 @@ export default function UploadModal({ open, onClose }: Props) {
                                             value={keywordInput}
                                             onChange={e => setKeywordInput(e.target.value)}
                                             onKeyDown={e => {
-                                                if ((e.key === "Enter" || e.key === ",") && keywordInput.trim()) {
-                                                    e.preventDefault()
+                                                if ((e.key === "Enter" || e.key === "," || e.key === "Tab") && keywordInput.trim()) {
+                                                    if (e.key !== "Tab") e.preventDefault()
                                                     const kw = keywordInput.trim().replace(/,$/, "")
                                                     if (kw && !formData.keywords.includes(kw)) {
                                                         update("keywords", [...formData.keywords, kw])
@@ -739,6 +739,9 @@ export default function UploadModal({ open, onClose }: Props) {
 
                             <div className="flex flex-col gap-1">
                                 <label className={labelClass}>Passphrase <span className="text-red-500 text-base">*</span></label>
+                                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                                    The passphrase will be provided to you by university administrators.
+                                </p>
                                 <input
                                     type="text"
                                     placeholder="Enter the passphrase"

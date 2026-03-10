@@ -15,7 +15,7 @@ export default async function Home() {
   const featuredProjects = allProjects.filter(p => p.featured);
   return (
     <>
-      <div className="min-h-screen bg-zinc-50 dark:bg-black">
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
         <Navbar />
         <main className="py-8 px-4 sm:px-8">
           <FeaturedProjects projects={featuredProjects} />

@@ -38,13 +38,19 @@ export default function Footer() {
                                 </li>
                             </ul>
                         </div>
-                        <div>
+                        <div className="flex flex-col gap-2">
                             <p className="text-xs font-bold uppercase tracking-widest text-indigo-400 dark:text-indigo-300 mb-3">Contact</p>
                             <a
-                                href="mailto:cs-portfolio@cs.au.dk"
+                                href="mailto:csg@cs.au.dk"
                                 className="text-sm text-zinc-500 dark:text-zinc-200 hover:text-zinc-900 dark:hover:text-white transition-colors"
                             >
-                                cs-portfolio@cs.au.dk
+                                csg@cs.au.dk
+                            </a>
+                            <a
+                                href="mailto:simon@cs.au.dk"
+                                className="text-sm text-zinc-500 dark:text-zinc-200 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                            >
+                                simon@cs.au.dk
                             </a>
                         </div>
                         <div>

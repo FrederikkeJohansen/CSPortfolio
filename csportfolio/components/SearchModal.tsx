@@ -60,7 +60,7 @@ export default function SearchModal({ projects: propProjects }: Props) {
 
     const query = searchQuery.toLowerCase().trim()
     const filteredProjects = !query
-        ? []
+        ? projects
         : projects.filter(project => {
             const title = project.title?.toLowerCase() ?? ""
             const description = project.description?.toLowerCase() ?? ""
@@ -130,22 +130,20 @@ export default function SearchModal({ projects: propProjects }: Props) {
 
             {/* Results */}
             <div className="px-4 sm:px-8 py-8">
-                {!query && (
-                    <p className="text-center font-normal text-zinc-400 dark:text-white text-sm mt-20">
-                        Start typing to search projects
-                    </p>
-                )}
 
-                {query && filteredProjects.length === 0 && (
+                {filteredProjects.length === 0 && query && (
                     <p className="text-center text-zinc-400 dark:text-white text-sm mt-20">
                         No projects found for &ldquo;{searchQuery}&rdquo;
                     </p>
                 )}
 
-                {query && filteredProjects.length > 0 && (
+                {filteredProjects.length > 0 && (
                     <>
                         <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                            {filteredProjects.length} {filteredProjects.length === 1 ? "project" : "projects"} found
+                            {query
+                                ? `${filteredProjects.length} ${filteredProjects.length === 1 ? "project" : "projects"} found`
+                                : `All projects (${filteredProjects.length})`
+                            }
                         </p>
                         <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
                             {filteredProjects.map(project => (

@@ -220,11 +220,11 @@ export default function UploadModal({ open, onClose }: Props) {
                 <div className="relative bg-indigo-50 dark:bg-zinc-900 rounded-2xl p-8 w-full max-w-lg mx-4 text-center">
                     <h2 className="text-xl font-bold mb-2">Project submitted!</h2>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                        Your project has been submitted for review. An admin will approve it shortly.
+                        It will be visible once an administrator has approved it. If you made a mistake, please upload a new version and contact an administrator to delete the incorrect submission. The administrator’s email is available in the bottom of this website.
                     </p>
                     <button
                         onClick={onClose}
-                        className="bg-indigo-500 text-white rounded-full px-6 py-2 text-sm font-semibold hover:bg-indigo-600 transition-colors"
+                        className="bg-indigo-500 text-white rounded-full px-6 py-2 text-sm font-semibold hover:bg-indigo-600 transition-colors cursor-pointer"
                     >
                         Close
                     </button>

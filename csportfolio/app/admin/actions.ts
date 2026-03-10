@@ -74,6 +74,13 @@ export async function updateCourseName(id: string, name: string) {
   revalidatePath('/admin')
 }
 
+export async function deleteCourse(id: string) {
+  const { supabase } = await requireAuth()
+  const { error } = await supabase.from('courses').delete().eq('id', id)
+  if (error) throw new Error(error.message)
+  revalidatePath('/admin')
+}
+
 // ── Passphrases ──
 
 export async function createPassphrase(value: string) {

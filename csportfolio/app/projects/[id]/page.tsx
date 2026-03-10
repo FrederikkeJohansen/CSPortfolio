@@ -34,7 +34,7 @@ export default async function ProjectPage({ params }: Props) {
                         />
                     </div>
                     <div className="flex flex-col">
-                        <p className="text-xs font-semibold tracking-wide uppercase text-indigo-500 dark:text-indigo-300 mb-1">
+                        <p className="text-xs 2xl:text-sm font-semibold tracking-wide uppercase text-indigo-500 dark:text-indigo-300 mb-1">
                             <span className={courseUnavailable ? "text-zinc-400 dark:text-zinc-500" : ""}>
                                 {courses?.name}
                                 {courseUnavailable && (
@@ -45,9 +45,9 @@ export default async function ProjectPage({ params }: Props) {
                         </p>
                         <h1 className="text-2xl md:text-4xl font-bold text-zinc-800 dark:text-zinc-200 mb-2">{title}</h1>
 
-                        <p className="text-sm md:text-base 2xl:text-xl font-medium text-black dark:text-zinc-300 mb-1 whitespace-pre-line">{description}</p>
+                        <p className="text-sm md:text-base 2xl:text-lg font-medium text-black dark:text-zinc-300 mb-1 whitespace-pre-line">{description}</p>
                         {keywords?.length > 0 && (
-                            <p className="text-sm md:text-base 2xl:text-xl text-black dark:text-white mb-1">
+                            <p className="text-sm md:text-base 2xl:text-lg text-black dark:text-white mb-1">
                                 <span className="uppercase tracking-wide font-bold text-black dark:text-white">Key Words: </span>
                                 {keywords.map(kw => kw.charAt(0).toUpperCase() + kw.slice(1)).join(" • ")}
                             </p>
@@ -55,7 +55,7 @@ export default async function ProjectPage({ params }: Props) {
 
                         <p className="text-sm font-bold text-zinc-500 dark:text-zinc-300 mt-4">Created by: {student_creators ?? "Anonymous"}</p>
 
-                        <div className="flex flex-row gap-4 text-sm md:text-base font-medium mt-4">
+                        <div className="flex flex-row gap-4 text-sm md:text-base 2xl:text-lg font-medium mt-4">
                             {video_url ? (
                                 <a href={video_url} target="_blank" rel="noopener noreferrer"
                                     className="text-indigo-500 dark:text-indigo-200 hover:underline font-bold cursor-pointer">

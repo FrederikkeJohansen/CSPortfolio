@@ -54,4 +54,5 @@ export type AdminProject = Project & {
   student_name: string | null
   student_email: string | null
   student_number: string | null
+  passphrase_used: string | null
 }

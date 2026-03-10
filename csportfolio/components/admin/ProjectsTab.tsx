@@ -68,6 +68,7 @@ export function ProjectsTab({ projects }: Props) {
             <TableHead>Student</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Student #</TableHead>
+            <TableHead>Passphrase</TableHead>
             <TableHead className="text-center">Visible</TableHead>
             <TableHead className="text-center">Featured</TableHead>
             <TableHead className="text-center">Order</TableHead>
@@ -87,7 +88,7 @@ export function ProjectsTab({ projects }: Props) {
           ))}
           {projects.length === 0 && (
             <TableRow>
-              <TableCell colSpan={10} className="text-center text-zinc-500 dark:text-zinc-400 py-8">
+              <TableCell colSpan={11} className="text-center text-zinc-500 dark:text-zinc-400 py-8">
                 No projects found.
               </TableCell>
             </TableRow>
@@ -147,6 +148,9 @@ function ProjectRow({
       </TableCell>
       <TableCell className="text-zinc-600 dark:text-zinc-400">
         {project.student_number ?? '—'}
+      </TableCell>
+      <TableCell className="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">
+        {project.passphrase_used ?? '—'}
       </TableCell>
       <TableCell className="text-center">
         <Switch

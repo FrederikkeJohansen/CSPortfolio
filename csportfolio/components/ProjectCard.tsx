@@ -55,7 +55,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                         </p>
                     )}
                     <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200 mt-auto pt-2 truncate">
-                        Created by: {student_creators ?? "Anonymous"}
+                        Created by: {student_creators}
                     </p>
                 </div>
             </div>

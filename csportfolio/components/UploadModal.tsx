@@ -131,6 +131,7 @@ export default function UploadModal({ open, onClose }: Props) {
         if (!formData.year || isNaN(year) || year < 1900 || year > currentYear) { fields.add("year"); parts.push(`a valid year (no higher than ${currentYear})`) }
         if (!formData.course_id) { fields.add("course_id"); parts.push("a course") }
         if (formData.image_files.length === 0) { fields.add("image_files"); parts.push("at least one image") }
+        if (!formData.student_creators.trim()) { fields.add("student_creators"); parts.push("creator(s)") }
         if (parts.length === 0) return { error: null, fields: new Set() }
         return { error: formatErrorList(parts), fields }
     }
@@ -142,7 +143,7 @@ export default function UploadModal({ open, onClose }: Props) {
         const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
         if (!emailRegex.test(formData.student_email.trim())) { fields.add("student_email"); parts.push("a valid email") }
         const num = formData.student_number.trim()
-        const validNumber = /^\d{9}$/.test(num) || /^[Aa][Uu]\d{6}$/.test(num)
+        const validNumber = /^(AU)?\d+$/i.test(num)
         if (!validNumber) { fields.add("student_number"); parts.push("a valid student number") }
         if (parts.length === 0) return { error: null, fields: new Set() }
         return { error: formatErrorList(parts), fields }
@@ -190,7 +191,7 @@ export default function UploadModal({ open, onClose }: Props) {
                 year: parseInt(formData.year),
                 video_url: formData.video_url.trim() || null,
                 poster_url: posterUrl,
-                student_creators: formData.student_creators.trim() || null,
+                student_creators: formData.student_creators.trim(),
                 course_id: formData.course_id,
                 student_name: formData.student_name.trim(),
                 student_email: formData.student_email.trim(),
@@ -651,7 +652,7 @@ export default function UploadModal({ open, onClose }: Props) {
                                 </div>
 
                                 <div className="flex flex-col gap-1">
-                                    <label className={labelClass}>Creators</label>
+                                    <label className={cn(labelClass, invalidFields.has("student_creators") && "text-red-500")}>Creators <span className="text-red-500 text-base">*</span></label>
                                     <input
                                         type="text"
                                         placeholder="Name of creator(s) or group"
@@ -739,6 +740,9 @@ export default function UploadModal({ open, onClose }: Props) {
 
                             <div className="flex flex-col gap-1">
                                 <label className={labelClass}>Passphrase <span className="text-red-500 text-base">*</span></label>
+                                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                                    The passphrase will be provided to you by university administrators.
+                                </p>
                                 <input
                                     type="text"
                                     placeholder="Enter the passphrase"

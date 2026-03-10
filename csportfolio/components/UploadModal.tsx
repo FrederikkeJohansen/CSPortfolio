@@ -362,8 +362,8 @@ export default function UploadModal({ open, onClose }: Props) {
                                             value={keywordInput}
                                             onChange={e => setKeywordInput(e.target.value)}
                                             onKeyDown={e => {
-                                                if ((e.key === "Enter" || e.key === ",") && keywordInput.trim()) {
-                                                    e.preventDefault()
+                                                if ((e.key === "Enter" || e.key === "," || e.key === "Tab") && keywordInput.trim()) {
+                                                    if (e.key !== "Tab") e.preventDefault()
                                                     const kw = keywordInput.trim().replace(/,$/, "")
                                                     if (kw && !formData.keywords.includes(kw)) {
                                                         update("keywords", [...formData.keywords, kw])

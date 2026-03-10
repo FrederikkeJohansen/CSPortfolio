@@ -97,6 +97,13 @@ export async function deletePassphrase(id: string) {
   revalidatePath('/admin')
 }
 
+export async function togglePassphraseActive(id: string, active: boolean) {
+  const { supabase } = await requireAuth()
+  const { error } = await supabase.from('passphrases').update({ active }).eq('id', id)
+  if (error) throw new Error(error.message)
+  revalidatePath('/admin')
+}
+
 export async function signOut() {
   const supabase = await createSupabaseServerClient()
   await supabase.auth.signOut()

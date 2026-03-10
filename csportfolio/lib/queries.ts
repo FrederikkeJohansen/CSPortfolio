@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase"
+import { createSupabaseAdminClient } from "@/lib/supabase-admin"
 import { AdminProject, Course, Project } from "@/types"
 
 const PROJECT_SELECT = `
@@ -102,6 +103,21 @@ export async function getPassphrases(): Promise<{ id: string; value: string; act
         .from("passphrases")
         .select("id, value, active")
         .order("value", { ascending: true })
+
+    if (error) {
+        console.error("Failed to fetch passphrases:", error)
+        return []
+    }
+
+    return data ?? []
+}
+
+export async function getAllPassphrases(): Promise<{ id: string; value: string; active: boolean }[]> {
+    const adminClient = createSupabaseAdminClient()
+    const { data, error } = await adminClient
+        .from("passphrases")
+        .select("id, value, active")
+        .order("created_at", { ascending: false })
 
     if (error) {
         console.error("Failed to fetch passphrases:", error)

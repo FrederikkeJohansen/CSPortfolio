@@ -2,9 +2,10 @@
 
 import {
   createPassphrase,
-  updatePassphrase,
   deletePassphrase,
+  togglePassphraseActive,
 } from '@/app/admin/actions'
+import { Switch } from '@/components/ui/switch'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,7 +28,8 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { useState, useTransition } from 'react'
-import { Plus, Pencil, Check, Trash2 } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 type Props = {
   passphrases: { id: string; value: string; active: boolean }[]
@@ -37,8 +39,6 @@ export function PassphrasesTab({ passphrases }: Props) {
   const [isPending, startTransition] = useTransition()
   const [showAddForm, setShowAddForm] = useState(false)
   const [newValue, setNewValue] = useState('')
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editingValue, setEditingValue] = useState('')
 
   function handleAdd() {
     const trimmed = newValue.trim()
@@ -50,18 +50,9 @@ export function PassphrasesTab({ passphrases }: Props) {
     })
   }
 
-  function handleStartEdit(id: string, currentValue: string) {
-    setEditingId(id)
-    setEditingValue(currentValue)
-  }
-
-  function handleSaveEdit(id: string) {
-    const trimmed = editingValue.trim()
-    if (!trimmed) return
+  function handleToggleActive(id: string, currentValue: boolean) {
     startTransition(async () => {
-      await updatePassphrase(id, trimmed)
-      setEditingId(null)
-      setEditingValue('')
+      await togglePassphraseActive(id, !currentValue)
     })
   }
 
@@ -108,104 +99,69 @@ export function PassphrasesTab({ passphrases }: Props) {
         </div>
       )}
 
-      <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-x-auto">
+      <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 shadow-sm w-fit">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead className="min-w-[300px]">Value</TableHead>
-              <TableHead className="text-center">Active</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+            <TableRow className="bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
+              <TableHead className="min-w-[300px] px-4 py-3 font-semibold text-zinc-900 dark:text-zinc-100 align-top text-left text-sm uppercase tracking-wide border-r border-zinc-200 dark:border-zinc-700">Value</TableHead>
+              <TableHead className="px-4 py-3 font-semibold text-zinc-900 dark:text-zinc-100 align-top text-center text-sm uppercase tracking-wide border-r border-zinc-200 dark:border-zinc-700">Active</TableHead>
+              <TableHead className="px-4 py-3 font-semibold text-zinc-900 dark:text-zinc-100 align-top text-center text-sm uppercase tracking-wide">Delete</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {passphrases.map((passphrase) => (
               <TableRow
                 key={passphrase.id}
-                className={`${passphrase.active
-                  ? 'bg-green-50/50 dark:bg-green-950/20'
-                  : 'bg-red-50/50 dark:bg-red-950/20'
-                  } ${isPending ? 'opacity-60' : ''}`}
+                className={cn(
+                  passphrase.active
+                    ? 'bg-green-50/50 dark:bg-green-950/20'
+                    : '',
+                  isPending ? 'opacity-60' : '',
+                  'hover:bg-white dark:hover:bg-zinc-800/70'
+                )}
               >
-                <TableCell className="font-medium text-zinc-900 dark:text-zinc-100">
-                  {editingId === passphrase.id ? (
-                    <Input
-                      value={editingValue}
-                      onChange={(e) => setEditingValue(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleSaveEdit(passphrase.id)
-                        if (e.key === 'Escape') setEditingId(null)
-                      }}
-                      disabled={isPending}
-                      className="max-w-sm"
-                    />
-                  ) : (
-                    passphrase.value
-                  )}
+                <TableCell className="px-4 py-3 text-left font-medium text-zinc-900 dark:text-zinc-100 border-r border-zinc-200 dark:border-zinc-700">
+                  {passphrase.value}
                 </TableCell>
-                <TableCell className="text-center">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${passphrase.active
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                      : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                      }`}
-                  >
-                    {passphrase.active ? 'Active' : 'Inactive'}
-                  </span>
+                <TableCell className="px-4 py-3 text-center border-r border-zinc-200 dark:border-zinc-700">
+                  <Switch
+                    checked={passphrase.active}
+                    onCheckedChange={() => handleToggleActive(passphrase.id, passphrase.active)}
+                    disabled={isPending}
+                    className="cursor-pointer"
+                  />
                 </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    {editingId === passphrase.id ? (
+                <TableCell className="px-4 py-3 text-center">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleSaveEdit(passphrase.id)}
-                        disabled={isPending || !editingValue.trim()}
-                      >
-                        <Check className="h-4 w-4" />
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          handleStartEdit(passphrase.id, passphrase.value)
-                        }
                         disabled={isPending}
+                        className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 cursor-pointer"
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
-                    )}
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={isPending}
-                          className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete passphrase</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this passphrase? This
+                          action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDelete(passphrase.id)}
+                          className="bg-red-600 hover:bg-red-700 text-white"
                         >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete passphrase</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete this passphrase? This
-                            action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDelete(passphrase.id)}
-                            className="bg-red-600 hover:bg-red-700 text-white"
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </TableCell>
               </TableRow>
             ))}
@@ -213,7 +169,7 @@ export function PassphrasesTab({ passphrases }: Props) {
               <TableRow>
                 <TableCell
                   colSpan={3}
-                  className="text-center text-zinc-500 dark:text-zinc-400 py-8"
+                  className="text-center text-zinc-500 dark:text-zinc-400 py-10"
                 >
                   No passphrases found.
                 </TableCell>

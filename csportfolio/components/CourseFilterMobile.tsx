@@ -54,7 +54,7 @@ export default function CourseFilterMobile({ courses, selectedCourses, onToggle 
 
             {/* Dropdown panel */}
             {open && (
-                <div className="absolute top-full left-0 right-0 z-50 bg-white dark:bg-black border-2 border-t-0 border-indigo-500 dark:border-indigo-400 rounded-b-2xl overflow-hidden">
+                <div className="absolute top-full left-0 right-0 z-50 bg-white dark:bg-zinc-900 border-2 border-t-0 border-indigo-500 dark:border-indigo-400 rounded-b-2xl overflow-hidden">
 
                     {/* Header — sits above the scrollable list, always visible */}
                     <div className="flex items-center justify-between px-5 py-2.5 border-b border-indigo-100 dark:border-zinc-700">

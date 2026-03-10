@@ -80,9 +80,9 @@ export default function SearchModal({ projects: propProjects }: Props) {
         })
 
     return (
-        <div className="fixed inset-0 z-50 bg-zinc-50 dark:bg-black overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-zinc-50 dark:bg-zinc-900 overflow-y-auto">
             {/* Header */}
-            <div className="sticky top-0 z-50 bg-zinc-50/80 dark:bg-black/80 backdrop-blur-sm">
+            <div className="sticky top-0 z-50 bg-zinc-50/80 dark:bg-zinc-900/80 backdrop-blur-sm">
                 <div className="p-8 flex items-center gap-4">
                     {/* Close button */}
                     <button

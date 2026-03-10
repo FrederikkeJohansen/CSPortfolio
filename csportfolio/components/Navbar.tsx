@@ -11,7 +11,7 @@ export default function Navbar() {
     return (
         <>
 
-            <nav className="w-full sticky top-0 z-50 bg-zinc-50/80 dark:bg-black/80 backdrop-blur-sm">
+            <nav className="w-full sticky top-0 z-50 bg-zinc-50/80 dark:bg-zinc-900/80 backdrop-blur-sm">
                 <div className="px-8 py-4 flex items-center justify-end md:justify-between">
                     <p className="hidden md:block text-sm font-semibold tracking-widest uppercase text-zinc-400 dark:text-zinc-500 select-none">
                         Student project portfolio - upload & explore

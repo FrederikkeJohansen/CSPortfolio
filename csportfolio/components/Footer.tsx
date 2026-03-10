@@ -3,7 +3,7 @@ import { Settings } from 'lucide-react'
 
 export default function Footer() {
     return (
-        <footer className="w-full bg-gray-50 dark:bg-black border-t border-zinc-200 dark:border-zinc-900">
+        <footer className="w-full bg-gray-50 dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-900">
             <div className="max-w-7xl mx-auto px-8 pt-8 pb-4 flex flex-col gap-10">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-10 md:gap-16">
                     <p className="text-sm text-zinc-500 dark:text-zinc-200 leading-relaxed max-w-sm">

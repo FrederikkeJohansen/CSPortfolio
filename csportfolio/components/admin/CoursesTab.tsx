@@ -1,7 +1,7 @@
 'use client'
 
 import { Course } from '@/types'
-import { toggleCourseAvailable, createCourse } from '@/app/admin/actions'
+import { toggleCourseAvailable, createCourse, updateCourseName } from '@/app/admin/actions'
 import { Switch } from '@/components/ui/switch'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -14,7 +14,9 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useState, useTransition } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Pencil, Check } from 'lucide-react'
+
+import { cn } from '@/lib/utils'
 
 type Props = {
   courses: Course[]
@@ -24,10 +26,27 @@ export function CoursesTab({ courses }: Props) {
   const [isPending, startTransition] = useTransition()
   const [showAddForm, setShowAddForm] = useState(false)
   const [newCourseName, setNewCourseName] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingValue, setEditingValue] = useState('')
 
   function handleToggleAvailable(id: string, currentValue: boolean) {
     startTransition(async () => {
       await toggleCourseAvailable(id, !currentValue)
+    })
+  }
+
+  function handleStartEdit(id: string, currentName: string) {
+    setEditingId(id)
+    setEditingValue(currentName)
+  }
+
+  function handleSaveEdit(id: string) {
+    const trimmed = editingValue.trim()
+    if (!trimmed) return
+    startTransition(async () => {
+      await updateCourseName(id, trimmed)
+      setEditingId(null)
+      setEditingValue('')
     })
   }
 
@@ -47,6 +66,7 @@ export function CoursesTab({ courses }: Props) {
         <Button
           variant="outline"
           size="sm"
+          className="cursor-pointer"
           onClick={() => setShowAddForm((prev) => !prev)}
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -69,6 +89,7 @@ export function CoursesTab({ courses }: Props) {
           <Button
             size="sm"
             onClick={handleAddCourse}
+            className='cursor-pointer'
             disabled={isPending || !newCourseName.trim()}
           >
             Add
@@ -76,43 +97,83 @@ export function CoursesTab({ courses }: Props) {
         </div>
       )}
 
-      <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-x-auto">
+      <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 shadow-sm w-fit">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead className="min-w-[300px]">Name</TableHead>
-              <TableHead className="text-center">Available</TableHead>
+            <TableRow className="bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
+              <TableHead className="px-4 py-3 font-semibold text-zinc-900 dark:text-zinc-100 align-top text-left text-sm uppercase tracking-wide border-r border-zinc-200 dark:border-zinc-700">Name</TableHead>
+              <TableHead className="px-4 py-3 font-semibold text-zinc-900 dark:text-zinc-100 align-top text-center text-sm uppercase tracking-wide border-r border-zinc-200 dark:border-zinc-700">Available</TableHead>
+              <TableHead className="px-4 py-3 font-semibold text-zinc-900 dark:text-zinc-100 align-top text-right text-sm uppercase tracking-wide">Edit</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {courses.map((course) => (
               <TableRow
                 key={course.id}
-                className={`${
+                className={cn(
                   course.available
                     ? 'bg-green-50/50 dark:bg-green-950/20'
-                    : 'bg-red-50/50 dark:bg-red-950/20'
-                } ${isPending ? 'opacity-60' : ''}`}
+                    : '',
+                  isPending ? 'opacity-60' : '',
+                  'hover:bg-white dark:hover:bg-zinc-800/70'
+                )}
               >
-                <TableCell className="font-medium text-zinc-900 dark:text-zinc-100">
-                  {course.name}
+                <TableCell className="px-4 py-3 text-left font-medium text-zinc-900 dark:text-zinc-100 border-r border-zinc-200 dark:border-zinc-700">
+                  {editingId === course.id ? (
+                    <Input
+                      value={editingValue}
+                      onChange={(e) => setEditingValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveEdit(course.id)
+                        if (e.key === 'Escape') setEditingId(null)
+                      }}
+                      disabled={isPending}
+                      className="max-w-sm"
+                    />
+                  ) : (
+                    course.name
+                  )}
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className="px-4 py-3 text-center border-r border-zinc-200 dark:border-zinc-700">
                   <Switch
                     checked={course.available}
                     onCheckedChange={() =>
                       handleToggleAvailable(course.id, course.available)
                     }
                     disabled={isPending}
+                    className="cursor-pointer"
                   />
+                </TableCell>
+                <TableCell className="px-4 py-3 text-right">
+                  {editingId === course.id ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleSaveEdit(course.id)}
+                      disabled={isPending || !editingValue.trim()}
+                      className="cursor-pointer"
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleStartEdit(course.id, course.name)}
+                      disabled={isPending}
+                      className="cursor-pointer"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
             {courses.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={2}
-                  className="text-center text-zinc-500 dark:text-zinc-400 py-8"
+                  colSpan={3}
+                  className="text-center text-zinc-500 dark:text-zinc-400 py-10"
                 >
                   No courses found.
                 </TableCell>

@@ -67,6 +67,13 @@ export async function createCourse(name: string) {
   revalidatePath('/admin')
 }
 
+export async function updateCourseName(id: string, name: string) {
+  const { supabase } = await requireAuth()
+  const { error } = await supabase.from('courses').update({ name }).eq('id', id)
+  if (error) throw new Error(error.message)
+  revalidatePath('/admin')
+}
+
 // ── Passphrases ──
 
 export async function createPassphrase(value: string) {

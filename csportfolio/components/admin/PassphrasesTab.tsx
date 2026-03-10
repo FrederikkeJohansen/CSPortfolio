@@ -77,6 +77,7 @@ export function PassphrasesTab({ passphrases }: Props) {
         <Button
           variant="outline"
           size="sm"
+          className="cursor-pointer"
           onClick={() => setShowAddForm((prev) => !prev)}
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -98,6 +99,7 @@ export function PassphrasesTab({ passphrases }: Props) {
           />
           <Button
             size="sm"
+            className="cursor-pointer"
             onClick={handleAdd}
             disabled={isPending || !newValue.trim()}
           >
@@ -119,11 +121,10 @@ export function PassphrasesTab({ passphrases }: Props) {
             {passphrases.map((passphrase) => (
               <TableRow
                 key={passphrase.id}
-                className={`${
-                  passphrase.active
-                    ? 'bg-green-50/50 dark:bg-green-950/20'
-                    : 'bg-red-50/50 dark:bg-red-950/20'
-                } ${isPending ? 'opacity-60' : ''}`}
+                className={`${passphrase.active
+                  ? 'bg-green-50/50 dark:bg-green-950/20'
+                  : 'bg-red-50/50 dark:bg-red-950/20'
+                  } ${isPending ? 'opacity-60' : ''}`}
               >
                 <TableCell className="font-medium text-zinc-900 dark:text-zinc-100">
                   {editingId === passphrase.id ? (
@@ -143,11 +144,10 @@ export function PassphrasesTab({ passphrases }: Props) {
                 </TableCell>
                 <TableCell className="text-center">
                   <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                      passphrase.active
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                    }`}
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${passphrase.active
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                      : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                      }`}
                   >
                     {passphrase.active ? 'Active' : 'Inactive'}
                   </span>

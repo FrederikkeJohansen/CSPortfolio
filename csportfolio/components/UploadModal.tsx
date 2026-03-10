@@ -196,6 +196,7 @@ export default function UploadModal({ open, onClose }: Props) {
                 student_email: formData.student_email.trim(),
                 student_number: formData.student_number.trim(),
                 keywords: formData.keywords,
+                passphrase_used: formData.passphrase.trim(),
             })
 
             // 4. Upload images

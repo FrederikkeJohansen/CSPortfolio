@@ -41,6 +41,7 @@ export async function createProject(project: {
     student_email: string
     student_number: string
     keywords: string[]
+    passphrase_used: string
 }): Promise<string> {
     const projectId = crypto.randomUUID()
 

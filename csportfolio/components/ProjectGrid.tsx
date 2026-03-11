@@ -5,8 +5,8 @@ type ProjectGridProps = {
     projects: Project[]
 }
 
+/** Responsive grid that renders a ProjectCard for each project. */
 export default function ProjectGrid({ projects }: ProjectGridProps) {
-
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
             {projects.map((project) => (

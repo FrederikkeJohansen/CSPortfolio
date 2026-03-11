@@ -1,14 +1,18 @@
+/** Centralized TypeScript type definitions matching the Supabase schema. */
+
 export type Course = {
   id: string
   name: string
   available: boolean
 }
 
+/** Local image file + preview URL used during the upload flow. */
 export type ImageEntry = {
   file: File
   preview: string
 }
 
+/** Shape of the multi-step upload form state. */
 export type UploadFormData = {
   title: string
   description: string
@@ -32,6 +36,7 @@ export type ProjectImage = {
   display_order: number | null
 }
 
+/** Public project with joined course and images (no student PII). */
 export type Project = {
   id: string
   title: string
@@ -50,6 +55,7 @@ export type Project = {
   keywords: string[]
 }
 
+/** Admin-only project fields — extends Project with student personal information and review state. */
 export type AdminProject = Project & {
   student_name: string | null
   student_email: string | null

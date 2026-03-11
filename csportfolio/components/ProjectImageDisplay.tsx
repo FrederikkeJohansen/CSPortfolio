@@ -17,6 +17,7 @@ type Props = {
     title: string
 }
 
+/** Single image with shimmer loading skeleton. */
 function CarouselImage({ src, alt }: { src: string; alt: string }) {
     const [loaded, setLoaded] = useState(false)
 
@@ -39,6 +40,7 @@ function CarouselImage({ src, alt }: { src: string; alt: string }) {
     )
 }
 
+/** Horizontal image carousel on the project detail page with wheel-gesture support. */
 export default function ProjectImageDisplay({ images, title }: Props) {
     if (!images || images.length === 0) return null
 

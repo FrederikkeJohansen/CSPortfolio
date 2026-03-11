@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
+/** Server-side Supabase client with cookie-based auth (used in Server Actions and RSCs). */
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies()
 

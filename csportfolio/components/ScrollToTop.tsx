@@ -1,12 +1,13 @@
 "use client"
 
+/** Small button at the bottom-right that smoothly scrolls back to the top of the page. */
 export default function ScrollToTop() {
     return (
         <div className="flex justify-end p-2">
             <button
                 type="button"
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                className="w-10 h-10 rounded-full  bg-transparent flex items-center justify-center cursor-pointer"
+                className="w-10 h-10 rounded-full bg-transparent flex items-center justify-center cursor-pointer"
                 aria-label="Scroll to top"
             >
                 <svg

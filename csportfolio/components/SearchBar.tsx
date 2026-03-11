@@ -2,6 +2,7 @@
 
 import { useSearch } from "@/providers/SearchProvider"
 
+/** Search icon button in the navbar that opens the full-screen search modal. */
 export default function SearchBar() {
     const { openSearch } = useSearch()
 

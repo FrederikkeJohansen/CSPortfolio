@@ -1,5 +1,9 @@
 "use client"
 
+/**
+ * Global search context — provides search query state and open/close controls
+ * so any component (Navbar, SearchBar, SearchModal) can trigger or read search state.
+ */
 import { createContext, useContext, useState, type ReactNode } from "react"
 
 type SearchContextType = {

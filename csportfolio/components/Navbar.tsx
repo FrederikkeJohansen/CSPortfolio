@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import UploadModal from "@/components/UploadModal"
 import SearchBar from "@/components/SearchBar"
 
-
+/** Sticky top navigation bar with upload button and search icon. */
 export default function Navbar() {
     const [uploadOpen, setUploadOpen] = useState(false)
     return (

@@ -11,8 +11,10 @@ type Props = {
     projects: Project[]
 }
 
+/** Minimum number of items to fill the infinite-scroll carousel without visible gaps. */
 const MIN_VISIBLE = 24
 
+/** Single image tile with shimmer loading state. */
 function FeaturedImage({ src, alt }: { src: string; alt: string }) {
     const [loaded, setLoaded] = useState(false)
 
@@ -36,6 +38,7 @@ function FeaturedImage({ src, alt }: { src: string; alt: string }) {
     )
 }
 
+/** Auto-scrolling carousel of featured project images on the homepage. */
 export default function FeaturedProjects({ projects }: Props) {
     const plugin = useRef(
         AutoScroll({

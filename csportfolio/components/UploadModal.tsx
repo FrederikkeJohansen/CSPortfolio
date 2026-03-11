@@ -1,5 +1,11 @@
 "use client"
 
+/**
+ * Multi-step upload modal for submitting a new student project.
+ * Step 1: Project details (title, description, year, keywords, course, images, poster, video).
+ * Step 2: Student info (name, email, student number).
+ * Step 3: Submit (GDPR, passphrase).
+ */
 import { useState, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 import { getCourses } from "@/lib/queries"

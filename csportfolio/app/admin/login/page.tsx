@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
+/** Admin login form — authenticates via Supabase email/password. */
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -38,7 +39,10 @@ export default function AdminLoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black">
       <form onSubmit={handleLogin} className="w-full max-w-sm space-y-4 p-8 bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
         <h1 className="text-xl font-bold text-center text-zinc-900 dark:text-zinc-100">Admin Login</h1>
-        <p text->This is only for admins who are responsible for maintaining this portfolio. In case of any issues logging in, please contact an admin with access to the database.  </p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center">
+          This is only for admins who are responsible for maintaining this portfolio.
+          In case of any issues logging in, please contact an admin with access to the database.
+        </p>
 
         {error && (
           <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>

@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Project } from "@/types";
-import Image from "next/image";
+import { Project } from "@/types"
+import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
@@ -10,9 +10,12 @@ type ProjectCardProps = {
     project: Project
 }
 
+/** Card displaying a project thumbnail, course, title, description, and creator. */
 export default function ProjectCard({ project }: ProjectCardProps) {
     const [loaded, setLoaded] = useState(false)
     const { id, title, description, year, student_creators, courses, project_images } = project
+
+    // Sort images by display_order to get the primary image first. After, all courses are sorted after created date.
     const sortedImages = [...(project_images ?? [])].sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
     const imageSrc = sortedImages[0]?.image_url ?? null
     const courseName = courses?.name ?? null

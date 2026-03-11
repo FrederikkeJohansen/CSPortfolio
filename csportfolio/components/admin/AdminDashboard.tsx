@@ -1,5 +1,6 @@
 'use client'
 
+/** Admin dashboard — tabbed interface for managing projects, courses, and passphrases. */
 import { AdminProject, Course } from '@/types'
 import { signOut } from '@/app/admin/actions'
 import { ProjectsTab } from '@/components/admin/ProjectsTab'

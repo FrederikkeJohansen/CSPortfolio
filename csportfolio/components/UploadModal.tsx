@@ -1,5 +1,11 @@
 "use client"
 
+/**
+ * Multi-step upload modal for submitting a new student project.
+ * Step 1: Project details (title, description, year, keywords, course, images, poster, video).
+ * Step 2: Student info (name, email, student number).
+ * Step 3: Submit (GDPR, passphrase).
+ */
 import { useState, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 import { getCourses } from "@/lib/queries"
@@ -130,6 +136,7 @@ export default function UploadModal({ open, onClose }: Props) {
         const currentYear = new Date().getFullYear()
         if (!formData.year || isNaN(year) || year < 1900 || year > currentYear) { fields.add("year"); parts.push(`a valid year (no higher than ${currentYear})`) }
         if (!formData.course_id) { fields.add("course_id"); parts.push("a course") }
+        if (!formData.student_creators.trim()) { fields.add("student_creators"); parts.push("creator(s)") }
         if (formData.image_files.length === 0) { fields.add("image_files"); parts.push("at least one image") }
         if (parts.length === 0) return { error: null, fields: new Set() }
         return { error: formatErrorList(parts), fields }
@@ -651,7 +658,7 @@ export default function UploadModal({ open, onClose }: Props) {
                                 </div>
 
                                 <div className="flex flex-col gap-1">
-                                    <label className={labelClass}>Creators</label>
+                                    <label className={cn(labelClass, invalidFields.has("student_creators") && "text-red-500")}>Creators <span className="text-red-500 text-base">*</span></label>
                                     <input
                                         type="text"
                                         placeholder="Name of creator(s) or group"

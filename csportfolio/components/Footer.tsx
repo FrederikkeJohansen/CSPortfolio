@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Settings } from 'lucide-react'
 
+/** Site-wide footer with programme links, contact emails, social icons, and admin page button. */
 export default function Footer() {
     return (
         <footer className="w-full bg-gray-50 dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-900">

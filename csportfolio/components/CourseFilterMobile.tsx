@@ -9,6 +9,7 @@ type Props = {
     onToggle: (courseId: string) => void
 }
 
+/** Mobile course filter — dropdown that expands below the trigger button. */
 export default function CourseFilterMobile({ courses, selectedCourses, onToggle }: Props) {
     const [open, setOpen] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)

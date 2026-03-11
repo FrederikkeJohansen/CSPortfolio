@@ -1,5 +1,6 @@
 'use client'
 
+/** Admin passphrases tab — manage upload passphrases (create, toggle, delete). */
 import {
   createPassphrase,
   deletePassphrase,

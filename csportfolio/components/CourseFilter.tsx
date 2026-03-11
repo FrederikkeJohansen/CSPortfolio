@@ -9,6 +9,10 @@ type Props = {
     onToggle: (courseId: string) => void
 }
 
+/**
+ * Course filter — renders a mobile dropdown (small screens) and desktop pill buttons (md+).
+ * Active courses are highlighted; clicking a course toggles its selection.
+ */
 export default function CourseFilter({ courses, selectedCourses, onToggle }: Props) {
     return (
         <>
@@ -17,7 +21,7 @@ export default function CourseFilter({ courses, selectedCourses, onToggle }: Pro
                 <CourseFilterMobile courses={courses} selectedCourses={selectedCourses} onToggle={onToggle} />
             </div>
             {/* Desktop: Button grid */}
-            <div className="hidden md:flex flex-wrap gap-2 justify-center w-full 2xl:w-full mx-auto my-12 ">
+            <div className="hidden md:flex flex-wrap gap-2 justify-center w-full 2xl:w-full mx-auto my-12">
                 {courses.map(course => {
                     const isActive = selectedCourses.includes(course.id)
                     return (

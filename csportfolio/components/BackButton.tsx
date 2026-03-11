@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+/** Back-arrow-button link that navigates to the homepage from a project detail page. */
 export default function BackButton() {
     return (
         <Link

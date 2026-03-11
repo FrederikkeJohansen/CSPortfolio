@@ -1,5 +1,6 @@
 'use client'
 
+/** Admin projects tab — table with visibility, featured, ordering, and delete controls. */
 import { AdminProject } from '@/types'
 import {
   toggleProjectVisible,
@@ -40,10 +41,11 @@ type Props = {
   projects: AdminProject[]
 }
 
-const CB = 'border-r border-zinc-200 dark:border-zinc-700'
-const TH = 'px-4 py-3 font-semibold text-zinc-900 dark:text-zinc-100 align-top text-left text-sm uppercase tracking-wide'
-const TD = 'px-4 py-3 text-left'
-const SUB = 'font-normal text-[11px] text-zinc-400 dark:text-zinc-500 leading-tight mt-0.5 normal-case tracking-normal'
+// Reusable table cell class tokens
+const columnBorder = 'border-r border-zinc-200 dark:border-zinc-700'
+const tableHeader = 'px-4 py-3 font-semibold text-zinc-900 dark:text-zinc-100 align-top text-left text-sm uppercase tracking-wide'
+const tableCell = 'px-4 py-3 text-left'
+const subLabel = 'font-normal text-[11px] text-zinc-400 dark:text-zinc-500 leading-tight mt-0.5 normal-case tracking-normal'
 
 export function ProjectsTab({ projects }: Props) {
   const [isPending, startTransition] = useTransition()
@@ -118,43 +120,43 @@ export function ProjectsTab({ projects }: Props) {
         <Table>
           <TableHeader>
             <TableRow className=" bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
-              <TableHead className={cn('min-w-[220px]', TH, CB)}>
+              <TableHead className={cn('min-w-[220px]', tableHeader, columnBorder)}>
                 Title
               </TableHead>
-              <TableHead className={cn(TH, CB)}>
+              <TableHead className={cn(tableHeader, columnBorder)}>
                 Course
               </TableHead>
-              <TableHead className={cn(TH, CB)}>
+              <TableHead className={cn(tableHeader, columnBorder)}>
                 <div>Visible</div>
-                <div className={SUB}>Shown on portfolio</div>
+                <div className={subLabel}>Shown on portfolio</div>
               </TableHead>
-              <TableHead className={cn(TH, CB)}>
+              <TableHead className={cn(tableHeader, columnBorder)}>
                 <div>Featured</div>
-                <div className={SUB}>Shown in carousel</div>
+                <div className={subLabel}>Shown in carousel</div>
               </TableHead>
-              <TableHead className={cn('whitespace-nowrap', TH, CB)}>
+              <TableHead className={cn('whitespace-nowrap', tableHeader, columnBorder)}>
                 Uploaded
               </TableHead>
-              <TableHead className={cn(TH, CB)}>
+              <TableHead className={cn(tableHeader, columnBorder)}>
                 Student name
               </TableHead>
-              <TableHead className={cn(TH, CB)}>
+              <TableHead className={cn(tableHeader, columnBorder)}>
                 Student email
               </TableHead>
-              <TableHead className={cn('whitespace-nowrap', TH, CB)}>
+              <TableHead className={cn('whitespace-nowrap', tableHeader, columnBorder)}>
                 Student #
               </TableHead>
-              <TableHead className={cn(TH, CB)}>
+              <TableHead className={cn(tableHeader, columnBorder)}>
                 Passphrase used
               </TableHead>
-              <TableHead className={cn(TH, CB)}>
+              <TableHead className={cn(tableHeader, columnBorder)}>
                 <div>Order</div>
-                <div className={cn(SUB, 'whitespace-nowrap')}>Default 500</div>
+                <div className={cn(subLabel, 'whitespace-nowrap')}>Default 500</div>
               </TableHead>
-              <TableHead className={cn('whitespace-nowrap', TH, CB)}>
+              <TableHead className={cn('whitespace-nowrap', tableHeader, columnBorder)}>
                 Last edited by
               </TableHead>
-              <TableHead className={cn(TH)}>
+              <TableHead className={cn(tableHeader)}>
                 Delete
               </TableHead>
             </TableRow>
@@ -227,7 +229,7 @@ function ProjectRow({
 
   return (
     <TableRow className={cn(rowBg, isPending || isUpdatingOrder ? 'opacity-60' : '', 'hover:bg-white dark:hover:bg-zinc-800/70')}>
-      <TableCell className={cn(TD, 'font-medium max-w-[250px]', CB)}>
+      <TableCell className={cn(tableCell,'font-medium max-w-[250px]', columnBorder)}>
         <div className="flex items-center gap-2">
           {!project.reviewed && (
             <span className="shrink-0 inline-flex items-center gap-1">
@@ -249,39 +251,39 @@ function ProjectRow({
           </span>
         </div>
       </TableCell>
-      <TableCell className={cn(TD, 'text-zinc-800 dark:text-zinc-200 whitespace-nowrap', CB)}>
+      <TableCell className={cn(tableCell,'text-zinc-800 dark:text-zinc-200 whitespace-nowrap', columnBorder)}>
         {project.courses?.name ?? '—'}
       </TableCell>
-      <TableCell className={cn(TD, 'text-center', CB)}>
+      <TableCell className={cn(tableCell,'text-center', columnBorder)}>
         <Switch
           checked={project.visible}
           onCheckedChange={() => onToggleVisible(project.id, project.visible)}
           disabled={isPending}
         />
       </TableCell>
-      <TableCell className={cn(TD, 'text-center', CB)}>
+      <TableCell className={cn(tableCell,'text-center', columnBorder)}>
         <Switch
           checked={project.featured}
           onCheckedChange={() => onToggleFeatured(project.id, project.featured)}
           disabled={isPending}
         />
       </TableCell>
-      <TableCell className={cn(TD, 'text-zinc-800 dark:text-zinc-200 whitespace-nowrap', CB)}>
+      <TableCell className={cn(tableCell,'text-zinc-800 dark:text-zinc-200 whitespace-nowrap', columnBorder)}>
         {formatDate(project.created_at)}
       </TableCell>
-      <TableCell className={cn(TD, 'text-zinc-800 dark:text-zinc-200 whitespace-nowrap', CB)}>
+      <TableCell className={cn(tableCell,'text-zinc-800 dark:text-zinc-200 whitespace-nowrap', columnBorder)}>
         {project.student_name ?? '—'}
       </TableCell>
-      <TableCell className={cn(TD, 'text-zinc-800 dark:text-zinc-200', CB)}>
+      <TableCell className={cn(tableCell,'text-zinc-800 dark:text-zinc-200', columnBorder)}>
         {project.student_email ?? '—'}
       </TableCell>
-      <TableCell className={cn(TD, 'text-zinc-800 dark:text-zinc-200', CB)}>
+      <TableCell className={cn(tableCell,'text-zinc-800 dark:text-zinc-200', columnBorder)}>
         {project.student_number ?? '—'}
       </TableCell>
-      <TableCell className={cn(TD, 'text-zinc-800 dark:text-zinc-200 whitespace-nowrap', CB)}>
+      <TableCell className={cn(tableCell,'text-zinc-800 dark:text-zinc-200 whitespace-nowrap', columnBorder)}>
         {project.passphrase_used ?? '—'}
       </TableCell>
-      <TableCell className={cn(TD, CB)}>
+      <TableCell className={cn(tableCell,columnBorder)}>
         <Input
           type="number"
           value={displayOrder}
@@ -291,10 +293,10 @@ function ProjectRow({
           disabled={isPending || isUpdatingOrder}
         />
       </TableCell>
-      <TableCell className={cn(TD, 'text-zinc-800 dark:text-zinc-200 whitespace-nowrap', CB)}>
+      <TableCell className={cn(tableCell,'text-zinc-800 dark:text-zinc-200 whitespace-nowrap', columnBorder)}>
         {project.last_edited_by ?? '—'}
       </TableCell>
-      <TableCell className={cn(TD)}>
+      <TableCell className={cn(tableCell)}>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button

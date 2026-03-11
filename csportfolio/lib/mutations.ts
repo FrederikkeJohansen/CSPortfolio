@@ -1,6 +1,11 @@
+/**
+ * Supabase mutation functions for creating projects, uploading files,
+ * and validating passphrases. All run client-side via the anon key.
+ */
 import { supabase } from "@/lib/supabase"
 import { ImageEntry } from "@/types"
 
+/** Check if a passphrase exists and is active. */
 export async function validatePassphrase(passphrase: string): Promise<boolean> {
     const { data, error } = await supabase
         .from("passphrases")
@@ -15,6 +20,7 @@ export async function validatePassphrase(passphrase: string): Promise<boolean> {
     return !!data && data.length > 0
 }
 
+/** Upload a file to a Supabase storage bucket and return its public URL. */
 export async function uploadFile(bucket: string, file: File): Promise<string> {
     const fileExt = file.name.split(".").pop()
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
@@ -29,6 +35,7 @@ export async function uploadFile(bucket: string, file: File): Promise<string> {
     return data.publicUrl
 }
 
+/** Insert a new project row (initially hidden, awaiting admin review). */
 export async function createProject(project: {
     title: string
     description: string
@@ -58,6 +65,7 @@ export async function createProject(project: {
     return projectId
 }
 
+/** Upload all project images to storage and create project_images rows. The primary image gets display_order 0. */
 export async function uploadProjectImages(
     projectId: string,
     images: ImageEntry[],

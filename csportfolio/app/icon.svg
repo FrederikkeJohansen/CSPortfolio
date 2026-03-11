@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Bulb shape -->
+  <path d="M50,10 C68,10 82,24 82,42 C82,56 74,66 64,69 L62,72 L38,72 L36,69 C26,66 18,56 18,42 C18,24 32,10 50,10 Z" fill="#6366f1"/>
+  <!-- Screw base -->
+  <rect x="38" y="72" width="24" height="17" rx="2" fill="#6366f1"/>
+  <!-- Screw thread lines -->
+  <line x1="38" y1="77" x2="62" y2="77" stroke="white" stroke-width="2.5"/>
+  <line x1="38" y1="82" x2="62" y2="82" stroke="white" stroke-width="2.5"/>
+  <!-- Circuit-style filament: geometric U shape (like an LED symbol) -->
+  <polyline points="43,65 43,46 57,46 57,65"
+            fill="none" stroke="white" stroke-width="4.5"
+            stroke-linejoin="miter" stroke-linecap="square"/>
+  <!-- Solder pads at filament leads -->
+  <circle cx="43" cy="65" r="4.5" fill="white"/>
+  <circle cx="57" cy="65" r="4.5" fill="white"/>
+</svg>

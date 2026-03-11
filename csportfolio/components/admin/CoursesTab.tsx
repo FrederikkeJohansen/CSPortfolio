@@ -1,6 +1,6 @@
 'use client'
 
-/** Admin courses tab — CRUD table for managing available courses. */
+/** Admin courses tab — CRUD (create, read, update, delete) table for managing available courses. */
 import { Course } from '@/types'
 import { toggleCourseAvailable, createCourse, updateCourseName, deleteCourse } from '@/app/admin/actions'
 import { Switch } from '@/components/ui/switch'

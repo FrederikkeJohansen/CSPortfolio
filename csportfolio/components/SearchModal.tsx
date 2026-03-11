@@ -7,9 +7,14 @@ import { Project } from "@/types"
 import ProjectCard from "@/components/ProjectCard"
 
 type Props = {
+    /** Pre-fetched projects (homepage). When omitted (detail page), projects are fetched on open. */
     projects?: Project[]
 }
 
+/**
+ * Full-screen search overlay that filters projects by title, description,
+ * course, creator, year, and keywords. Locks body scroll while open.
+ */
 export default function SearchModal({ projects: propProjects }: Props) {
     const { isSearchOpen, searchQuery, setSearchQuery, closeSearch } = useSearch()
     const inputRef = useRef<HTMLInputElement>(null)
@@ -58,25 +63,21 @@ export default function SearchModal({ projects: propProjects }: Props) {
 
     if (!isSearchOpen) return null
 
+    // Client-side filtering across all searchable fields
     const query = searchQuery.toLowerCase().trim()
     const filteredProjects = !query
         ? projects
         : projects.filter(project => {
-            const title = project.title?.toLowerCase() ?? ""
-            const description = project.description?.toLowerCase() ?? ""
-            const creators = project.student_creators?.toLowerCase() ?? ""
-            const courseName = project.courses?.name?.toLowerCase() ?? ""
-            const year = String(project.year ?? "")
-            const keywords = project.keywords ?? []
+            const searchableFields = [
+                project.title,
+                project.description,
+                project.student_creators,
+                project.courses?.name,
+                String(project.year ?? ""),
+            ].map(f => (f ?? "").toLowerCase())
 
-            return (
-                title.includes(query) ||
-                description.includes(query) ||
-                creators.includes(query) ||
-                courseName.includes(query) ||
-                year.includes(query) ||
-                keywords.some(kw => kw.toLowerCase().includes(query))
-            )
+            const keywordMatch = (project.keywords ?? []).some(kw => kw.toLowerCase().includes(query))
+            return searchableFields.some(f => f.includes(query)) || keywordMatch
         })
 
     return (

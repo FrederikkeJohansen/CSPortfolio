@@ -46,6 +46,9 @@ export function AdminDashboard({ projects, courses, passphrases }: Props) {
         <div className="flex-1" />
         <Button variant="outline" size="sm" onClick={handleSignOut} className="shrink-0">Sign out</Button>
       </header>
+      <div className="bg-red-50 dark:bg-red-950/30 border-b border-red-200 dark:border-red-800 px-6 py-1.5">
+        <p className="text-xs text-red-600 dark:text-red-400">Please sign out and back in to ensure you are viewing the newest data.</p>
+      </div>
       <main className="flex-1 px-6 py-6">
         <TabsContent value="projects" className="mt-0">
           <ProjectsTab projects={projects} />
